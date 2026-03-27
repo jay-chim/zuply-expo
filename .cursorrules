@@ -1,0 +1,42 @@
+# Zuply 臻沛 — Expo React Native Cursor AI 規則
+
+## 項目背景
+Zuply Expo 原型是 AI 個人化營養補充品 App 的 React Native 版本。
+目前為 UI 原型（mock data），後續需接入 Web MVP 的 API 後端。
+
+## 技術棧
+- **框架**：Expo SDK 51+ / React Native
+- **路由**：Expo Router（file-based routing）
+- **語言**：TypeScript
+- **樣式**：React Native StyleSheet
+- **圖標**：@expo/vector-icons (Ionicons)
+
+## UI 語言
+- 所有介面文字使用**繁體中文**
+- 配色：teal 主色（#0D9488），健康科技風格
+
+## 頁面結構
+```
+app/
+├── (tabs)/
+│   ├── index.tsx          ← 首頁（Hero + 如何運作）
+│   ├── questionnaire.tsx  ← 5 步健康問卷
+│   ├── orders.tsx         ← 訂單列表
+│   └── profile.tsx        ← 個人中心
+├── formula.tsx            ← 配方結果（Stack screen）
+├── cart.tsx               ← 購物車（Stack screen）
+└── order-status.tsx       ← 訂單追蹤（Stack screen）
+```
+
+## 業務規則（同 Web MVP）
+- 定價：Basic HK$1.2 / Advanced HK$1.8 / Premium HK$4.0 / Flagship HK$5.8
+- AI 費 HK$3/天 + 包裝費 HK$1/天
+- 忠誠折扣：1 月 0% / 2 月 10% / 3 月 15%
+- ≤6 粒單包 / ≥7 粒 AM/PM 雙包 / 最多 12 粒
+
+## 下一步
+1. 替換 mock data → 接入 Web MVP API（`https://your-domain/api/...`）
+2. 加入 AsyncStorage 做 token 持久化
+3. 加入 Push Notifications（Expo Notifications）
+4. 實作相機拍照上傳體檢報告
+5. Apple Pay / Google Pay 支付整合
