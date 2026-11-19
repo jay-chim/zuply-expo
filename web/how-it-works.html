@@ -122,10 +122,14 @@ h1 span, h2 span { display: inline-block; }
 .beam.off { opacity: 0; pointer-events: none; }
 @keyframes beam { to { transform: translateY(100%); } }
 
-/* scenes: one always-dark instrument panel per step, drawn over a faint, static blueprint grid */
-.scene { width: 100%; max-width: 760px; aspect-ratio: 4 / 3; border-radius: 28px; overflow: hidden; background-color: #000000;
+/* scenes: one photo per step inside an instrument panel; the canvas above it draws the live overlay.
+   The blueprint grid shows only if a photo fails to load. */
+.shot-fig { margin: 0; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.scene { position: relative; width: 100%; max-width: 760px; aspect-ratio: 4 / 3; border-radius: 28px; overflow: hidden; background-color: #000000;
   background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 38px 38px; background-position: center; }
-.scene canvas { display: block; width: 100%; height: 100%; }
+.scene .shot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.scene::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(rgba(0, 0, 0, .22), rgba(0, 0, 0, 0) 28%, rgba(0, 0, 0, 0) 62%, rgba(0, 0, 0, .3)); }
+.scene canvas { position: relative; z-index: 2; display: block; width: 100%; height: 100%; }
 .visual { gap: clamp(24px, 4vw, 44px); }
 
 /* 1 group chat */
@@ -320,7 +324,10 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
       <h2><span>成隊專科，</span><span>睇你一個。</span></h2>
       <p class="lede">幾十位專家圍住你轉，日日傾你嘅事。<strong>呢種待遇，出面俾唔到。</strong></p>
       <div class="visual">
-        <div class="scene"><canvas id="scene-1" role="img" aria-label="真人醫生同 AI 一齊為一位用戶會診"></canvas></div>
+        <figure class="shot-fig">
+          <div class="scene"><img class="shot" src="assets/step-1.jpg" alt="" loading="lazy" decoding="async"><canvas id="scene-1" role="img" aria-label="五位醫生同 AI 顯示屏圍住一位用戶會診"></canvas></div>
+          <figcaption class="note">AI 生成示意圖</figcaption>
+        </figure>
         <div class="room" id="room">
           <div class="room-head">
             <div class="stack" id="room-stack"></div>
@@ -340,7 +347,10 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
       <h2><span>身體講嘢，</span><span>我哋識聽。</span></h2>
       <p class="lede">傾偈、驗血、手錶、戒指（快嚟啦）、問卷。<strong>你嘅身體講咩，我哋聽到。</strong></p>
       <div class="visual">
-        <div class="scene"><canvas id="scene-2" role="img" aria-label="人體掃描，傾偈、驗血、手錶、戒指、問卷嘅數據由身體流出"></canvas></div>
+        <figure class="shot-fig">
+          <div class="scene"><img class="shot" src="assets/step-2.jpg" alt="" loading="lazy" decoding="async"><canvas id="scene-2" role="img" aria-label="手腕上嘅手錶同戒指、驗血同問卷，數據由身體流出"></canvas></div>
+          <figcaption class="note">AI 生成示意圖</figcaption>
+        </figure>
         <ul class="sources">
           <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M8 11h28a3 3 0 0 1 3 3v15a3 3 0 0 1-3 3H21l-8 6v-6H8a3 3 0 0 1-3-3V14a3 3 0 0 1 3-3z"/><path d="M14 19h16M14 25h10"/></svg>傾偈</li>
           <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 5c6 8 11 14 11 21a11 11 0 0 1-22 0c0-7 5-13 11-21z"/><path d="M16 27a6 6 0 0 0 6 6"/></svg>驗血</li>
@@ -359,7 +369,10 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
       <h2><span>每月一盒 30 包，</span><span>度身訂造。</span></h2>
       <p class="lede">配方跟人走，唔係人跟配方走。<strong>ZNRS 系統讀晒你嘅數據，逐粒計出你嗰盒配方。</strong></p>
       <div class="visual">
-        <div class="scene"><canvas id="scene-3" role="img" aria-label="數據流入 ZNRS 系統，計出每包 6 粒、一盒 30 包"></canvas></div>
+        <figure class="shot-fig">
+          <div class="scene"><img class="shot" src="assets/step-3.jpg" alt="" loading="lazy" decoding="async"><canvas id="scene-3" role="img" aria-label="ZNRS 系統計出每包 6 粒，逐包放入一盒 30 包"></canvas></div>
+          <figcaption class="note">AI 生成示意圖</figcaption>
+        </figure>
         <div class="packrow">
           <div class="pack" role="img" aria-label="寫上你名字嘅每月配方盒，一盒 30 包">
             <small>ZUPLY · 每月配方</small>
@@ -392,7 +405,10 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
       <h2><span>你變，</span><span>配方跟住變。</span></h2>
       <p class="lede">人哋賣 supplement，我哋養 formula。<strong>身體唔會停喺原地，配方都唔會。</strong></p>
       <div class="visual">
-        <div class="scene"><canvas id="scene-4" role="img" aria-label="DNA 螺旋同配方由 v1.0 演變到 v2.0"></canvas></div>
+        <figure class="shot-fig">
+          <div class="scene"><img class="shot" src="assets/step-4.jpg" alt="" loading="lazy" decoding="async"><canvas id="scene-4" role="img" aria-label="用戶打開新一盒配方，配方由 v1.0 演變到 v2.0"></canvas></div>
+          <figcaption class="note">AI 生成示意圖</figcaption>
+        </figure>
         <div class="evo">
           <div class="month">
             <h3>第 1 個月<b>Formula v1.0</b></h3>
@@ -441,7 +457,9 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
 
 <script>
 (function () {
-  // Scenes: four instrument panels, one per step. Vocabulary: scan, pulse, data, holo. Every time below is a CSS token.
+  // Scenes: one photo per step with a live instrument overlay drawn on top. Vocabulary: scan, pulse, data, holo.
+  // Overlay coordinates live in an 800 x 600 space laid over each photo as it is cropped on screen: pixel (px, py)
+  // of the 1024-square photo sits at x = px / 1024 * 800, y = py / 1024 * 800 - 200 * crop. Every time is a CSS token.
   (function () {
     var VW = 800, VH = 600, TAU = Math.PI * 2;
     var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -450,148 +468,136 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
     function tok(name, fallback) { return parseFloat(css.getPropertyValue(name)) || fallback; }
     var BEAT = tok('--dur-beat', 1.1), AMB = tok('--dur-amb', 6), RIPPLE = tok('--dur-ripple', 2.4), ONLINE = tok('--dur-online', .4),
         FLASH = tok('--dur-flash', .3), MICRO = tok('--dur-s', .2), STATE = tok('--dur-m', .45), CELL = tok('--stagger-cell', .03);
-    var FONT = getComputedStyle(document.body).fontFamily, SCAN = css.getPropertyValue('--scan').trim() || '#5eead4', DEEP = '#2dd4bf', INK = '#f5f5f7', DIM = '#a1a1a6';
-    var seed = 7; function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+    var FONT = getComputedStyle(document.body).fontFamily, SCAN = css.getPropertyValue('--scan').trim() || '#5eead4', INK = '#f5f5f7', DIM = '#a1a1a6', PANEL = '#071615';
+    var CROP = [.43, .9, .8, .4];   // how far down each square photo is cropped into its 4:3 panel
     function clamp(x) { return Math.max(0, Math.min(1, x)); }
     function expo(x) { x = clamp(x); return x >= 1 ? 1 : 1 - Math.pow(2, -10 * x); }   // ease-out-expo, the canvas twin of --ease
     function beat(t) { return .5 - .5 * Math.cos(TAU * t / BEAT); }                      // 0..1..0 once per heartbeat
-    function cap(ax, ay, bx, by, r) { var t = rnd(), a = rnd() * TAU, d = Math.sqrt(rnd()) * r;
-      return [ax + (bx - ax) * t + Math.cos(a) * d, ay + (by - ay) * t + Math.sin(a) * d, (rnd() - .5) * r * 1.3]; }
-    var BODY = [], i, p;
-    for (i = 0; i < 900; i++) {
-      var u = rnd(), sd = rnd() < .5 ? -1 : 1;
-      if (u < .09) { var a0 = rnd() * TAU, r0 = .13 * Math.sqrt(rnd()); p = [Math.cos(a0) * r0, .8 + Math.sin(a0) * r0, (rnd() - .5) * .16]; }
-      else if (u < .12) p = cap(0, .62, 0, .68, .05);
-      else if (u < .46) { p = cap(0, 0, 0, .42, .2); p[0] *= 1 + (p[1] > .2 ? .25 : 0); }
-      else if (u < .64) p = cap(sd * .29, .5, sd * .43, -.1, .05);
-      else p = cap(sd * .11, -.12, sd * .15, -.95, .075);
-      BODY.push(p);
-    }
-    var ORDER = [0, 1, 2, 3, 4, 5];   // which node comes online when: shuffled once per page load
+    var ORDER = [0, 1, 2, 3, 4, 5], i;   // which node comes online when: shuffled once per page load
     for (i = 5; i > 0; i--) { var pick = Math.floor(Math.random() * (i + 1)), swap = ORDER[i]; ORDER[i] = ORDER[pick]; ORDER[pick] = swap; }
 
-    function body(c, cx, cy, sc, ang, scan) {
-      var ca = Math.cos(ang), sa = Math.sin(ang);
-      for (var j = 0; j < BODY.length; j += lite ? 2 : 1) {
-        var q = BODY[j], X = q[0] * ca + q[2] * sa, Z = q[2] * ca - q[0] * sa, hit = Math.max(0, 1 - Math.abs(q[1] - scan) / .06), z = 2 + hit * 2;
-        c.globalAlpha = Math.min(1, .5 + .4 * (1 - Z * 4) / 2 + hit); c.fillStyle = hit > .3 ? '#ffffff' : (j % 3 ? SCAN : DEEP);
-        c.fillRect(cx + X * sc - z / 2, cy - q[1] * sc - z / 2, z, z);
-      }
-    }
     function text(c, str, x, y, size, col, weight) { c.font = (weight || 600) + ' ' + size + 'px ' + FONT; c.fillStyle = col; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(str, x, y); }
     function rr(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
-    function line(c, x1, y1, x2, y2, col, a, w) { c.globalAlpha = a; c.strokeStyle = col; c.lineWidth = w || 1; c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke(); }
+    function line(c, x1, y1, x2, y2, col, a, w) { c.globalAlpha = a; c.strokeStyle = col; c.lineWidth = w || 1.5; c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke(); }
     function dot(c, x, y, r, col, a) { c.globalAlpha = a; c.fillStyle = col; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); }
-    function pulse(c, x1, y1, x2, y2, ph, col, a) { var f = ((ph % 1) + 1) % 1; dot(c, x1 + (x2 - x1) * f, y1 + (y2 - y1) * f, 3.4, col, a * Math.sin(f * Math.PI)); }
-    function hex(c, x, y, r, rot) { c.beginPath(); for (var k = 0; k < 6; k++) { var a = rot + k * TAU / 6; c[k ? 'lineTo' : 'moveTo'](x + Math.cos(a) * r, y + Math.sin(a) * r); } c.closePath(); c.stroke(); }
+    function ring(c, x, y, r, a) { c.globalAlpha = a; c.strokeStyle = SCAN; c.lineWidth = 1.5; c.beginPath(); c.arc(x, y, r, 0, TAU); c.stroke(); }
+    function pulse(c, x1, y1, x2, y2, ph, col, a) { var f = ((ph % 1) + 1) % 1; dot(c, x1 + (x2 - x1) * f, y1 + (y2 - y1) * f, 3.6, col, a * Math.sin(f * Math.PI)); }
+    function hex(c, x, y, r) { c.beginPath(); for (var k = 0; k < 6; k++) { var a = k * TAU / 6; c[k ? 'lineTo' : 'moveTo'](x + Math.cos(a) * r, y + Math.sin(a) * r); } c.closePath(); c.stroke(); }
+    function bracket(c, x, y, w, h, len, a) {   // the four corners of a w x h box centred on x, y
+      var l = x - w / 2, r = x + w / 2, t = y - h / 2, b = y + h / 2;
+      c.globalAlpha = a; c.strokeStyle = SCAN; c.lineWidth = 2.4; c.beginPath();
+      c.moveTo(l, t + len); c.lineTo(l, t); c.lineTo(l + len, t); c.moveTo(r - len, t); c.lineTo(r, t); c.lineTo(r, t + len);
+      c.moveTo(r, b - len); c.lineTo(r, b); c.lineTo(r - len, b); c.moveTo(l + len, b); c.lineTo(l, b); c.lineTo(l, b - len); c.stroke();
+    }
+    function panel(c, x, y, w, h, r, a) { rr(c, x, y, w, h, r); c.globalAlpha = .8 * a; c.fillStyle = PANEL; c.fill(); c.globalAlpha = .55 * a; c.strokeStyle = SCAN; c.lineWidth = 1.5; c.stroke(); }
+    function tag(c, str, x, y, a, opt) {        // a labelled chip; opt: { w, dim, dashed }
+      opt = opt || {}; c.font = '600 22px ' + FONT; var w = opt.w || c.measureText(str).width + 36, h = 42;
+      rr(c, x - w / 2, y - h / 2, w, h, 21); c.globalAlpha = .8 * a; c.fillStyle = PANEL; c.fill();
+      c.setLineDash(opt.dashed ? [6, 6] : []); c.globalAlpha = a * (opt.dim ? .6 : 1); c.strokeStyle = SCAN; c.lineWidth = 1.5; c.stroke(); c.setLineDash([]);
+      c.globalAlpha = a; text(c, str, x, y + 1, 22, opt.dim ? DIM : INK);
+    }
+    function frame(c) { bracket(c, VW / 2, VH / 2, VW - 36, VH - 36, 26, .55); }
 
-    // 1 會診. Sonar: a ring leaves "you" every wave and fades at the seats. Each line flashes as the ring crosses it.
-    //   Doctors and AI come online one by one. Nothing rotates.
+    // 1 會診. Five doctors and the AI display come online one by one. Sonar: a ring leaves "you" every wave;
+    //   each link flashes as the ring crosses it. Nothing rotates.
     function consult(c, t, age, amb) {
-      var seats = [[115, 120, 0], [115, 295, 1], [115, 470, 0], [685, 120, 1], [685, 295, 0], [685, 470, 1]], CX = 400, CY = 285, R0 = 70, R1 = 350;
+      var NODES = [[160, 140], [237, 156], [471, 126], [550, 160], [634, 166], [400, 100]], YOU = [395, 316], R0 = 30, R1 = 340;   // five doctors' heads, then the AI display
       var period = RIPPLE * (lite ? 2 : 1), ph = (t % period) / RIPPLE;   // ph > 1 on phones: the quiet gap between waves
       function lit(d) { var e = (ph - (d - R0) / (R1 - R0)) * RIPPLE; if (e < 0) e += period; return amb && e <= FLASH ? 1 - e / FLASH : 0; }
-      body(c, CX, CY, 150, amb ? Math.sin(t * TAU / AMB) * .18 : 0, -9);
-      c.globalAlpha = 1; text(c, '你', CX, 462, 26, INK, 700);
-      if (amb && ph <= 1) { c.globalAlpha = .5 * (1 - ph); c.strokeStyle = SCAN; c.lineWidth = 1.5; c.beginPath(); c.arc(CX, CY, R0 + (R1 - R0) * ph, 0, TAU); c.stroke(); }
-      seats.forEach(function (s, k) {
-        var since = age - .3 - ORDER[k] * ONLINE, a = expo(since / STATE); if (a <= 0) return;
-        var x = s[0], y = s[1], left = x < CX, tx = CX + (left ? -75 : 75), ty = CY + (y - 295) * .35, sx = x + (left ? 58 : -58);
+      function on(k) { return expo((age - .3 - ORDER[k] * ONLINE) / STATE); }
+      frame(c);
+      if (amb && ph <= 1) ring(c, YOU[0], YOU[1], R0 + (R1 - R0) * ph, .7 * (1 - ph));
+      NODES.forEach(function (n, k) {
+        var since = age - .3 - ORDER[k] * ONLINE, a = on(k); if (a <= 0) return;
+        var ai = k === 5, d = Math.hypot(n[0] - YOU[0], n[1] - YOU[1]), fromY = n[1] + (ai ? 42 : 32), toY = YOU[1] - 36;
         var pop = 1 + .06 * Math.sin(Math.PI * clamp(since / STATE)), arrive = 1 - clamp(since / (STATE * 2));
-        line(c, sx, y, tx, ty, SCAN, a * (.16 + .6 * lit(Math.hypot((sx + tx) / 2 - CX, (y + ty) / 2 - CY))));   // opacity only; the width never changes
-        if (amb && (!lite || k % 2 === 0)) pulse(c, sx, y, tx, ty, t / (AMB / 2) + k * .37, SCAN, a * .8);
-        c.save(); c.translate(x, y); c.scale(pop, pop); c.translate(-x, -y);
-        c.globalAlpha = a * Math.min(1, .2 + .6 * arrive + .4 * lit(Math.hypot(x - CX, y - CY))); c.strokeStyle = SCAN; c.lineWidth = 1.5; c.beginPath(); c.arc(x, y, 54, 0, TAU); c.stroke();
-        c.globalAlpha = a;
-        if (s[2]) { c.strokeStyle = SCAN; c.lineWidth = 2; hex(c, x, y, 34, 0); c.strokeStyle = DEEP; c.lineWidth = 1.2; hex(c, x, y, 21, TAU / 12); dot(c, x, y, 6.5 + 1.5 * (amb ? beat(t + k * .3) : .5), SCAN, a); }
-        else { c.fillStyle = INK; c.beginPath(); c.arc(x, y - 24, 15, 0, TAU); c.fill();
-          c.beginPath(); c.moveTo(x - 33, y + 36); c.quadraticCurveTo(x - 33, y - 3, x, y - 3); c.quadraticCurveTo(x + 33, y - 3, x + 33, y + 36); c.closePath(); c.fill();
-          c.strokeStyle = '#0d9488'; c.lineWidth = 2.5; c.beginPath(); c.moveTo(x - 9, y - 2); c.lineTo(x, y + 12); c.lineTo(x + 9, y - 2); c.stroke();
-          c.fillStyle = '#0d9488'; c.fillRect(x + 11, y + 20, 11, 3.2); c.fillRect(x + 14.9, y + 16.1, 3.2, 11); }
+        line(c, n[0], fromY, YOU[0], toY, SCAN, a * (.14 + .6 * lit(d / 2)), 1.2);   // opacity only; the width never changes
+        if (amb && (!lite || k % 2 === 0)) pulse(c, n[0], fromY, YOU[0], toY, t / (AMB / 2) + k * .37, INK, a * .9);
+        c.save(); c.translate(n[0], n[1]); c.scale(pop, pop); c.translate(-n[0], -n[1]);
+        var glow = a * Math.min(1, .8 + .2 * arrive + .2 * lit(d));
+        if (ai) { c.globalAlpha = glow; c.strokeStyle = SCAN; c.lineWidth = 2; hex(c, n[0], n[1], 40); dot(c, n[0] + 40, n[1], 4 + 1.5 * (amb ? beat(t) : .5), SCAN, a); }
+        else bracket(c, n[0], n[1], 58, 62, 13, glow);
         c.restore();
-        c.globalAlpha = a; text(c, s[2] ? 'AI' : '真人醫生', x, y + 76, 21, DIM);
       });
+      bracket(c, YOU[0], YOU[1], 76, 72, 15, .85);
+      tag(c, '真人醫生', 199, 56, Math.max(on(0), on(1))); tag(c, '真人醫生', 552, 56, Math.max(on(2), on(3), on(4)));
+      tag(c, 'AI', 400, 180, on(5)); tag(c, '你', 395, 392, 1);
     }
 
-    // 2 數據. Scan: a line reads the body top to bottom and back. Data: a point leaves each source on the heartbeat. Pulse: the trace below.
+    // 2 數據. Scan: a line reads the arm. Pulse: the watch beats. Data: a point leaves each source for its label.
     function data(c, t, age, amb) {
-      var cx = 400, cy = 280, sc = 200, scan = amb ? Math.sin(t * TAU / AMB) * .95 : 9;
-      body(c, cx, cy, sc, amb ? Math.sin(t * TAU / (AMB * 2)) * .2 : 0, scan);
-      if (amb) line(c, cx - 150, cy - scan * sc, cx + 150, cy - scan * sc, SCAN, .45);
-      [['傾偈', 0, .8, 125, 80], ['驗血', -.3, .25, 105, 250], ['問卷', .02, .4, 685, 105], ['手錶', .41, -.02, 695, 300], ['戒指 · 快嚟啦', .44, -.13, 665, 470]].forEach(function (g, k) {
+      var WATCH = [355, 238];
+      frame(c);
+      if (amb) { var y = 70 + (.5 + .5 * Math.sin(t * TAU / AMB)) * 450; line(c, 34, y, 766, y, SCAN, .6, 1.2); }
+      if (amb) { var b = (t % BEAT) / BEAT; ring(c, WATCH[0], WATCH[1], 30 + 30 * b, .8 * (1 - b)); }
+      [['手錶', 355, 238, 196, 356], ['戒指 · 快嚟啦', 504, 345, 440, 476], ['驗血', 564, 175, 640, 76], ['問卷', 690, 462, 556, 548]].forEach(function (g, k) {
         var a = expo((age - .3 - k * ONLINE) / STATE); if (a <= 0) return;
-        var soon = k === 4, ax = cx + g[1] * sc, ay = cy - g[2] * sc, w = soon ? 210 : 120, h = 48, x = g[3], y = g[4], ex = x + (x < cx ? w / 2 : -w / 2);
-        c.setLineDash(soon ? [6, 6] : []); line(c, ax, ay, ex, y, SCAN, a * (soon ? .3 : .45));
-        if (!soon && amb) { pulse(c, ax, ay, ex, y, t / (BEAT * 2) + k * .23, INK, a); if (!lite) pulse(c, ax, ay, ex, y, t / (BEAT * 2) + k * .23 + .5, INK, a); }
-        dot(c, ax, ay, 4.5, SCAN, a);
-        rr(c, x - w / 2, y - h / 2, w, h, 24); c.globalAlpha = a; c.fillStyle = '#071615'; c.fill(); c.globalAlpha = a * (soon ? .6 : 1); c.strokeStyle = SCAN; c.lineWidth = 1.5; c.stroke(); c.setLineDash([]);
-        text(c, g[0], x, y + 1, 22, soon ? DIM : INK);
+        var soon = k === 1;
+        c.setLineDash(soon ? [6, 6] : []); line(c, g[1], g[2], g[3], g[4], SCAN, a * (soon ? .55 : .8)); c.setLineDash([]);
+        if (!soon && amb) { pulse(c, g[1], g[2], g[3], g[4], t / (BEAT * 2) + k * .23, INK, a); if (!lite) pulse(c, g[1], g[2], g[3], g[4], t / (BEAT * 2) + k * .23 + .5, INK, a); }
+        dot(c, g[1], g[2], 4.5, SCAN, a); ring(c, g[1], g[2], 10, a * .8);
+        tag(c, g[0], g[3], g[4], a, { dim: soon, dashed: soon });
       });
-      c.globalAlpha = .9; c.strokeStyle = SCAN; c.lineWidth = 2; c.beginPath();   // vital-sign trace: one complex per heartbeat
-      for (var x = 250; x <= 550; x += 2) { var f = (((x * .006 - (amb ? t / BEAT : 0)) % 1) + 1) % 1, g = function (m, s) { return Math.exp(-Math.pow((f - m) / s, 2)); };
-        var y = 562 - 28 * g(.5, .012) + 9 * g(.46, .012) + 12 * g(.54, .012) - 5 * g(.72, .04); c[x === 250 ? 'moveTo' : 'lineTo'](x, y); }
-      c.stroke();
     }
 
-    // 3 配方. Data: four inputs stream into ZNRS. Pulse: the core breathes on the heartbeat. The 30 packs light up once, left to right.
+    // 3 配方. Data: ZNRS output streams to the sachet in hand. Pulse: ZNRS breathes on the heartbeat. The 30 packs light up once, left to right.
     function formula(c, t, age, amb) {
-      var CX = 330, CY = 300, n = lite ? 4 : 7, k;
-      [['會診', 140], ['驗血', 245], ['穿戴', 350], ['問卷', 455]].forEach(function (l, li) {
-        var a = expo((age - .2 - li * ONLINE / 2) / STATE); if (a <= 0) return; c.globalAlpha = a; text(c, l[0], 62, l[1], 22, DIM);
-        if (amb) for (var q = 0; q < n; q++) { var ph = (t / (AMB / 2) + q / n + li * .13) % 1, x = 105 + (CX - 105) * ph, y = l[1] + (CY - l[1]) * ph * ph; dot(c, x, y, 3.2, (q + li) % 2 ? SCAN : DEEP, a * Math.sin(ph * Math.PI)); }
-      });
-      var turn = amb ? t * TAU / AMB : 0;
-      [52, 68, 84].forEach(function (r, j) { var s = turn * (j % 2 ? -1 : 1) * (1 - j * .22) + j * 2; c.globalAlpha = .8; c.strokeStyle = j % 2 ? DEEP : SCAN; c.lineWidth = 2; c.beginPath(); c.arc(CX, CY, r, s, s + Math.PI * 1.25); c.stroke(); });
-      dot(c, CX, CY, 44, SCAN, .07 + .15 * (amb ? beat(t) : .5));
-      c.globalAlpha = 1; text(c, 'ZNRS', CX, CY + 1, 27, INK, 700);
-      line(c, 420, CY, 508, CY, SCAN, .2);
-      if (amb) for (k = 0; k < (lite ? 2 : 4); k++) { var f = (t / (AMB / 3) + k / 4) % 1; dot(c, 420 + 88 * f, CY, 3.2, INK, Math.sin(f * Math.PI)); }
-      var X0 = 520, Y0 = 165, done = 0;
-      for (k = 0; k < 30; k++) { var v = clamp((age - .9 - k * CELL) / MICRO), px = X0 + (k % 6) * 40, py = Y0 + Math.floor(k / 6) * 50; if (v >= 1) done++;
-        rr(c, px, py, 30, 40, 6); c.globalAlpha = .4 * (1 - v); c.strokeStyle = DIM; c.lineWidth = 1.2; c.stroke();
-        if (v > 0) { c.globalAlpha = .92 * v; c.fillStyle = SCAN; c.fill(); } }
-      c.globalAlpha = 1; text(c, '一盒 30 包', 635, 125, 26, INK, 700);
-      text(c, done < 30 ? '第 ' + (done + 1) + ' 包 · 每包 6 粒' : '30 包齊 · 每包 6 粒', 635, 448, 22, DIM);
+      var S = [500, 207], Z = [132, 92], k, done = 0;
+      frame(c);
+      line(c, Z[0] + 62, Z[1], S[0] - 46, S[1] - 26, SCAN, .45, 1.2);
+      if (amb) for (k = 0; k < (lite ? 2 : 4); k++) { var f = (t / (AMB / 3) + k / 4) % 1; dot(c, Z[0] + 62 + (S[0] - 46 - Z[0] - 62) * f, Z[1] + (S[1] - 26 - Z[1]) * f, 3.6, INK, Math.sin(f * Math.PI)); }
+      dot(c, Z[0], Z[1], 50, SCAN, .1 + .2 * (amb ? beat(t) : .5));
+      tag(c, 'ZNRS', Z[0], Z[1], 1, { w: 120 });
+      bracket(c, S[0], S[1], 118, 124, 20, .9);
+      panel(c, 70, 498, 660, 82, 18, 1);
+      for (k = 0; k < 30; k++) { var v = clamp((age - .9 - k * CELL) / MICRO), px = 88 + k * 21; if (v >= 1) done++;
+        rr(c, px, 540, 15, 24, 4); c.globalAlpha = .45 * (1 - v); c.strokeStyle = DIM; c.lineWidth = 1.2; c.stroke();
+        if (v > 0) { c.globalAlpha = .95 * v; c.fillStyle = SCAN; c.fill(); } }
+      c.globalAlpha = 1; text(c, '一盒 30 包', 400, 520, 20, INK, 700);
+      line(c, S[0] + 44, S[1] - 62, 640, 116, SCAN, .8);
+      tag(c, done < 30 ? '第 ' + (done + 1) + ' 包 · 每包 6 粒' : '30 包齊 · 每包 6 粒', 640, 95, 1, { w: 270 });
     }
 
-    // 4 Formula Evolution. The helix turns once per ambient cycle; the formula steps v1.0, v1.1, v2.0 and each state forms in place.
+    // 4 Formula Evolution. Scan: a line reads the helix up and down while points climb it. The formula steps v1.0, v1.1, v2.0 and each state forms in place.
     function evolve(c, t, age, amb) {
-      var rows = Math.round(45 * expo(age / 1.4)), turn = amb ? t * TAU / AMB : 0, wave = amb ? ((t / AMB) % 1) * 44 : -99;
-      for (var i = 0; i < rows; i++) {
-        var y = 70 + i * 10.5, a = i * .33 + turn, cs = Math.cos(a), sn = Math.sin(a), x1 = 215 + cs * 70, x2 = 215 - cs * 70, hot = Math.max(0, 1 - Math.abs(i - wave) / 4);
-        if (i % 2 === 0) line(c, x1, y, x2, y, hot > .2 ? INK : SCAN, .22 + hot * .6);
-        dot(c, x1, y, 3.4 + sn * 1.4, SCAN, .6 + .35 * sn); dot(c, x2, y, 3.4 - sn * 1.4, DEEP, .6 - .35 * sn);
-      }
+      var DX = 676, TOP = 226, BOT = 452, k;
+      frame(c);
+      bracket(c, DX, (TOP + BOT) / 2, 116, BOT - TOP + 20, 18, .8);
+      if (amb) { var y = TOP + (BOT - TOP) * (.5 + .5 * Math.sin(t * TAU / AMB)); line(c, DX - 54, y, DX + 54, y, SCAN, .85, 1.2);
+        for (k = 0; k < (lite ? 3 : 6); k++) { var f = (t / AMB + k / 6) % 1; dot(c, DX + Math.sin(f * 9 + k * 2) * 30, BOT - (BOT - TOP) * f, 3, INK, .9 * Math.sin(f * Math.PI)); } }
       var STAGE = AMB * 2 / 3, ph = amb ? (t % (STAGE * 3)) / STAGE : 2.999, st = Math.floor(ph), into = (ph - st) * STAGE;   // seconds into this version
       var counts = [0, 2, 4], n = counts[st], prev = st ? counts[st - 1] : 0, form = expo(into / STATE), shift = expo(into / (STATE * 2)), lv = (prev + (n - prev) * shift) / 6;
-      c.globalAlpha = form; text(c, '第 ' + (st + 1) + ' 個月', 590, 78, 22, SCAN); text(c, 'Formula ' + ['v1.0', 'v1.1', 'v2.0'][st], 590, 122, 40, INK, 700);
-      for (var k = 0; k < 6; k++) { var px = 452 + (k % 2) * 146, py = 172 + Math.floor(k / 2) * 60, ch = k >= 6 - n, fresh = ch && k < 6 - prev, on = ch ? (fresh ? shift : 1) : 0;
-        rr(c, px, py, 130, 44, 22); c.globalAlpha = .55 * (1 - on); c.strokeStyle = DIM; c.lineWidth = 1.5; c.stroke();
-        if (on > 0) { c.globalAlpha = on; c.fillStyle = SCAN; c.fill(); }
-        line(c, px + 65, py + 6, px + 65, py + 38, on > .5 ? '#000000' : DIM, on > .5 ? .35 : .4, 1.5); }
-      rr(c, 452, 372, 276, 8, 4); c.globalAlpha = .18; c.fillStyle = INK; c.fill();
-      if (lv > .01) { rr(c, 452, 372, 276 * lv, 8, 4); c.globalAlpha = 1; c.fillStyle = SCAN; c.fill(); }
-      c.globalAlpha = 1; c.fillStyle = INK; c.fillRect(589, 364, 2, 24);
-      c.globalAlpha = form; text(c, n ? '換咗 ' + n + ' / 6 粒 · ' + Math.round(n * 100 / 6) + '%' : '起點配方 · 6 粒', 590, 420, 22, INK);
-      text(c, st === 2 ? '過咗一半，升做 v2.0' : st ? '未過一半，升細版本' : '之後每次都同 v1.0 比', 590, 452, 19, DIM);
+      panel(c, 500, 34, 270, 176, 18, 1); line(c, DX, 210, DX, TOP - 10, SCAN, .7);
+      c.globalAlpha = form; text(c, '第 ' + (st + 1) + ' 個月', 635, 60, 18, SCAN); text(c, 'Formula ' + ['v1.0', 'v1.1', 'v2.0'][st], 635, 93, 30, INK, 700);
+      for (k = 0; k < 6; k++) { var px = 518 + k * 40, ch = k >= 6 - n, fresh = ch && k < 6 - prev, lit = ch ? (fresh ? shift : 1) : 0;
+        rr(c, px, 118, 34, 14, 7); c.globalAlpha = .6 * (1 - lit); c.strokeStyle = DIM; c.lineWidth = 1.2; c.stroke();
+        if (lit > 0) { c.globalAlpha = lit; c.fillStyle = SCAN; c.fill(); } }
+      rr(c, 518, 146, 234, 6, 3); c.globalAlpha = .22; c.fillStyle = INK; c.fill();
+      if (lv > .01) { rr(c, 518, 146, 234 * lv, 6, 3); c.globalAlpha = 1; c.fillStyle = SCAN; c.fill(); }
+      c.globalAlpha = 1; c.fillStyle = INK; c.fillRect(634, 141, 2, 16);
+      c.globalAlpha = form; text(c, n ? '換咗 ' + n + ' / 6 粒 · ' + Math.round(n * 100 / 6) + '%' : '起點配方 · 6 粒', 635, 172, 17, INK);
+      text(c, st === 2 ? '過咗一半，升做 v2.0' : st ? '未過一半，升細版本' : '之後每次都同 v1.0 比', 635, 194, 14, DIM);
     }
 
     var raf = 0, last = 0, list = [consult, data, formula, evolve].map(function (fn, k) {
-      var cv = document.getElementById('scene-' + (k + 1)); return { cv: cv, ctx: cv.getContext('2d'), fn: fn, live: false, seen: false, t: 0, age: 0, hold: false };
+      var cv = document.getElementById('scene-' + (k + 1)), shot = cv.parentNode.querySelector('.shot');
+      if (shot) shot.style.objectPosition = '50% ' + CROP[k] * 100 + '%';
+      return { cv: cv, ctx: cv.getContext('2d'), fn: fn, live: false, seen: false, t: 0, age: 0, hold: false };
     });
     function fit(s, w) { var px = Math.round(w * Math.min(window.devicePixelRatio || 1, 2)); if (px && s.cv.width !== px) { s.cv.width = px; s.cv.height = Math.round(px * VH / VW); } }
     function paint(s, dt) {   // draws only: no layout is read inside the frame loop
       var c = s.ctx, k = s.cv.width / VW; if (!c) return;
       if (!s.hold) { s.t += dt; s.age += dt; }
       c.setTransform(k, 0, 0, k, 0, 0); c.setLineDash([]); c.globalAlpha = 1; c.clearRect(0, 0, VW, VH);
+      c.shadowColor = 'rgba(0, 0, 0, .55)'; c.shadowBlur = 3 * k;   // keeps thin teal lines readable over bright parts of a photo
       s.fn(c, s.t, still ? 1e3 : s.age, !still); c.globalAlpha = 1;
     }
-    function frame(ms) {
+    function frame2(ms) {
       var dt = last ? Math.min(.1, (ms - last) / 1000) : 0, any = false; raf = 0; last = ms;
       list.forEach(function (s) { if (s.live) { paint(s, dt); any = true; } });
-      if (any && !still) raf = requestAnimationFrame(frame); else last = 0;
+      if (any && !still) raf = requestAnimationFrame(frame2); else last = 0;
     }
-    function kick() { if (!raf) raf = requestAnimationFrame(frame); }
+    function kick() { if (!raf) raf = requestAnimationFrame(frame2); }
     list.forEach(function (s) {
       if ('ResizeObserver' in window) new ResizeObserver(function (e) { fit(s, e[0].contentRect.width); kick(); }).observe(s.cv);
       else { fit(s, s.cv.clientWidth); window.addEventListener('resize', function () { fit(s, s.cv.clientWidth); kick(); }); }
