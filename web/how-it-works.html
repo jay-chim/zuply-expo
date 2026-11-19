@@ -122,8 +122,9 @@ h1 span, h2 span { display: inline-block; }
 .beam.off { opacity: 0; pointer-events: none; }
 @keyframes beam { to { transform: translateY(100%); } }
 
-/* scenes: one always-dark looping canvas per step */
-.scene { width: 100%; max-width: 760px; aspect-ratio: 4 / 3; border-radius: 28px; overflow: hidden; background: #000000; }
+/* scenes: one always-dark instrument panel per step, drawn over a faint, static blueprint grid */
+.scene { width: 100%; max-width: 760px; aspect-ratio: 4 / 3; border-radius: 28px; overflow: hidden; background-color: #000000;
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 38px 38px; background-position: center; }
 .scene canvas { display: block; width: 100%; height: 100%; }
 .visual { gap: clamp(24px, 4vw, 44px); }
 
@@ -400,13 +401,20 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
 
 <script>
 (function () {
-  // Scenes: four looping canvases, one per step; each builds up as it scrolls into view
+  // Scenes: four instrument panels, one per step. Vocabulary: scan, pulse, data, holo. Every time below is a CSS token.
   (function () {
-    var VW = 800, VH = 600, TAU = Math.PI * 2, still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var FONT = getComputedStyle(document.body).fontFamily, TEAL = '#2dd4bf', SKY = '#7dd3fc', INK = '#f5f5f7', DIM = '#a1a1a6';
+    var VW = 800, VH = 600, TAU = Math.PI * 2;
+    var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var lite = window.matchMedia('(max-width: 640px), (pointer: coarse)').matches;   // phones and touch: half the particles, sonar half as often
+    var css = getComputedStyle(document.documentElement);
+    function tok(name, fallback) { return parseFloat(css.getPropertyValue(name)) || fallback; }
+    var BEAT = tok('--dur-beat', 1.1), AMB = tok('--dur-amb', 6), RIPPLE = tok('--dur-ripple', 2.4), ONLINE = tok('--dur-online', .4),
+        FLASH = tok('--dur-flash', .3), MICRO = tok('--dur-s', .2), STATE = tok('--dur-m', .45), CELL = tok('--stagger-cell', .03);
+    var FONT = getComputedStyle(document.body).fontFamily, SCAN = css.getPropertyValue('--scan').trim() || '#5eead4', DEEP = '#2dd4bf', INK = '#f5f5f7', DIM = '#a1a1a6';
     var seed = 7; function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
     function clamp(x) { return Math.max(0, Math.min(1, x)); }
-    function smooth(x) { x = clamp(x); return x * x * (3 - 2 * x); }
+    function expo(x) { x = clamp(x); return x >= 1 ? 1 : 1 - Math.pow(2, -10 * x); }   // ease-out-expo, the canvas twin of --ease
+    function beat(t) { return .5 - .5 * Math.cos(TAU * t / BEAT); }                      // 0..1..0 once per heartbeat
     function cap(ax, ay, bx, by, r) { var t = rnd(), a = rnd() * TAU, d = Math.sqrt(rnd()) * r;
       return [ax + (bx - ax) * t + Math.cos(a) * d, ay + (by - ay) * t + Math.sin(a) * d, (rnd() - .5) * r * 1.3]; }
     var BODY = [], i, p;
@@ -419,11 +427,14 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
       else p = cap(sd * .11, -.12, sd * .15, -.95, .075);
       BODY.push(p);
     }
+    var ORDER = [0, 1, 2, 3, 4, 5];   // which node comes online when: shuffled once per page load
+    for (i = 5; i > 0; i--) { var pick = Math.floor(Math.random() * (i + 1)), swap = ORDER[i]; ORDER[i] = ORDER[pick]; ORDER[pick] = swap; }
+
     function body(c, cx, cy, sc, ang, scan) {
       var ca = Math.cos(ang), sa = Math.sin(ang);
-      for (var j = 0; j < BODY.length; j++) {
+      for (var j = 0; j < BODY.length; j += lite ? 2 : 1) {
         var q = BODY[j], X = q[0] * ca + q[2] * sa, Z = q[2] * ca - q[0] * sa, hit = Math.max(0, 1 - Math.abs(q[1] - scan) / .06), z = 2 + hit * 2;
-        c.globalAlpha = Math.min(1, .5 + .4 * (1 - Z * 4) / 2 + hit); c.fillStyle = hit > .3 ? '#ffffff' : (j % 3 ? TEAL : SKY);
+        c.globalAlpha = Math.min(1, .5 + .4 * (1 - Z * 4) / 2 + hit); c.fillStyle = hit > .3 ? '#ffffff' : (j % 3 ? SCAN : DEEP);
         c.fillRect(cx + X * sc - z / 2, cy - q[1] * sc - z / 2, z, z);
       }
     }
@@ -431,100 +442,109 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
     function rr(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
     function line(c, x1, y1, x2, y2, col, a, w) { c.globalAlpha = a; c.strokeStyle = col; c.lineWidth = w || 1; c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke(); }
     function dot(c, x, y, r, col, a) { c.globalAlpha = a; c.fillStyle = col; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); }
-    function pulse(c, x1, y1, x2, y2, ph, col, a) { var f = ((ph % 1) + 1) % 1; dot(c, x1 + (x2 - x1) * f, y1 + (y2 - y1) * f, 4, col, a * Math.sin(f * Math.PI)); }
+    function pulse(c, x1, y1, x2, y2, ph, col, a) { var f = ((ph % 1) + 1) % 1; dot(c, x1 + (x2 - x1) * f, y1 + (y2 - y1) * f, 3.4, col, a * Math.sin(f * Math.PI)); }
     function hex(c, x, y, r, rot) { c.beginPath(); for (var k = 0; k < 6; k++) { var a = rot + k * TAU / 6; c[k ? 'lineTo' : 'moveTo'](x + Math.cos(a) * r, y + Math.sin(a) * r); } c.closePath(); c.stroke(); }
 
-    // 1 會診: human doctors and AI take turns consulting one user
-    function consult(c, t, b) {
-      var seats = [[115, 125, 0], [115, 300, 1], [115, 475, 0], [685, 125, 1], [685, 300, 0], [685, 475, 1]], turn = t / 1.6, speaker = Math.floor(turn) % 6, beat = turn % 1;
-      body(c, 400, 285, 150, Math.sin(t * .5) * .35, -9);
-      c.globalAlpha = 1; text(c, '你', 400, 462, 26, INK, 700);
+    // 1 會診. Sonar: a ring leaves "you" every wave and fades at the seats. Each line flashes as the ring crosses it.
+    //   Doctors and AI come online one by one. Nothing rotates.
+    function consult(c, t, age, amb) {
+      var seats = [[115, 120, 0], [115, 295, 1], [115, 470, 0], [685, 120, 1], [685, 295, 0], [685, 470, 1]], CX = 400, CY = 285, R0 = 70, R1 = 350;
+      var period = RIPPLE * (lite ? 2 : 1), ph = (t % period) / RIPPLE;   // ph > 1 on phones: the quiet gap between waves
+      function lit(d) { var e = (ph - (d - R0) / (R1 - R0)) * RIPPLE; if (e < 0) e += period; return amb && e <= FLASH ? 1 - e / FLASH : 0; }
+      body(c, CX, CY, 150, amb ? Math.sin(t * TAU / AMB) * .18 : 0, -9);
+      c.globalAlpha = 1; text(c, '你', CX, 462, 26, INK, 700);
+      if (amb && ph <= 1) { c.globalAlpha = .5 * (1 - ph); c.strokeStyle = SCAN; c.lineWidth = 1.5; c.beginPath(); c.arc(CX, CY, R0 + (R1 - R0) * ph, 0, TAU); c.stroke(); }
       seats.forEach(function (s, k) {
-        var a = clamp(b * 7 - k); if (!a) return;
-        var x = s[0], y = s[1], left = x < 400, tx = 400 + (left ? -75 : 75), ty = 285 + (y - 300) * .35, on = k === speaker, col = s[2] ? SKY : INK, sx = x + (left ? 48 : -48);
-        line(c, sx, y, tx, ty, col, a * (on ? .75 : .2), on ? 1.6 : 1);
-        if (on) { for (var n = 0; n < 3; n++) pulse(c, sx, y, tx, ty, beat * 1.4 + n * .22, col, a);
-          c.globalAlpha = a * (1 - beat); c.strokeStyle = col; c.lineWidth = 2; c.beginPath(); c.arc(x, y, 48 + beat * 20, 0, TAU); c.stroke(); }
-        else pulse(c, tx, ty, sx, y, t * .3 + k * .37, TEAL, a * .6);
+        var since = age - .3 - ORDER[k] * ONLINE, a = expo(since / STATE); if (a <= 0) return;
+        var x = s[0], y = s[1], left = x < CX, tx = CX + (left ? -75 : 75), ty = CY + (y - 295) * .35, sx = x + (left ? 58 : -58);
+        var pop = 1 + .06 * Math.sin(Math.PI * clamp(since / STATE)), arrive = 1 - clamp(since / (STATE * 2));
+        line(c, sx, y, tx, ty, SCAN, a * (.16 + .6 * lit(Math.hypot((sx + tx) / 2 - CX, (y + ty) / 2 - CY))));   // opacity only; the width never changes
+        if (amb && (!lite || k % 2 === 0)) pulse(c, sx, y, tx, ty, t / (AMB / 2) + k * .37, SCAN, a * .8);
+        c.save(); c.translate(x, y); c.scale(pop, pop); c.translate(-x, -y);
+        c.globalAlpha = a * Math.min(1, .2 + .6 * arrive + .4 * lit(Math.hypot(x - CX, y - CY))); c.strokeStyle = SCAN; c.lineWidth = 1.5; c.beginPath(); c.arc(x, y, 54, 0, TAU); c.stroke();
         c.globalAlpha = a;
-        if (s[2]) { c.strokeStyle = SKY; c.lineWidth = 2; hex(c, x, y, 36, t * .4); c.strokeStyle = TEAL; c.lineWidth = 1.2; hex(c, x, y, 23, -t * .6); dot(c, x, y, 7 + 2 * Math.sin(t * 3 + k), SKY, a); }
-        else { c.fillStyle = INK; c.beginPath(); c.arc(x, y - 22, 16, 0, TAU); c.fill();
-          c.beginPath(); c.moveTo(x - 36, y + 42); c.quadraticCurveTo(x - 36, y, x, y); c.quadraticCurveTo(x + 36, y, x + 36, y + 42); c.closePath(); c.fill();
-          c.strokeStyle = '#0d9488'; c.lineWidth = 2.5; c.beginPath(); c.moveTo(x - 10, y + 1); c.lineTo(x, y + 16); c.lineTo(x + 10, y + 1); c.stroke();
-          c.fillStyle = '#0d9488'; c.fillRect(x + 12, y + 24, 12, 3.5); c.fillRect(x + 16.25, y + 19.75, 3.5, 12); }
-        c.globalAlpha = a; text(c, s[2] ? 'AI' : '真人醫生', x, y + (s[2] ? 62 : 64), 22, on ? INK : DIM);
+        if (s[2]) { c.strokeStyle = SCAN; c.lineWidth = 2; hex(c, x, y, 34, 0); c.strokeStyle = DEEP; c.lineWidth = 1.2; hex(c, x, y, 21, TAU / 12); dot(c, x, y, 6.5 + 1.5 * (amb ? beat(t + k * .3) : .5), SCAN, a); }
+        else { c.fillStyle = INK; c.beginPath(); c.arc(x, y - 24, 15, 0, TAU); c.fill();
+          c.beginPath(); c.moveTo(x - 33, y + 36); c.quadraticCurveTo(x - 33, y - 3, x, y - 3); c.quadraticCurveTo(x + 33, y - 3, x + 33, y + 36); c.closePath(); c.fill();
+          c.strokeStyle = '#0d9488'; c.lineWidth = 2.5; c.beginPath(); c.moveTo(x - 9, y - 2); c.lineTo(x, y + 12); c.lineTo(x + 9, y - 2); c.stroke();
+          c.fillStyle = '#0d9488'; c.fillRect(x + 11, y + 20, 11, 3.2); c.fillRect(x + 14.9, y + 16.1, 3.2, 11); }
+        c.restore();
+        c.globalAlpha = a; text(c, s[2] ? 'AI' : '真人醫生', x, y + 76, 21, DIM);
       });
     }
 
-    // 2 數據: the body speaks; each source listens at its own spot
-    function data(c, t, b) {
-      var cx = 400, cy = 280, sc = 200, scan = Math.sin(t * 1.1) * .95;
-      body(c, cx, cy, sc, Math.sin(t * .6) * .3, scan);
-      line(c, cx - 150, cy - scan * sc, cx + 150, cy - scan * sc, TEAL, .45);
+    // 2 數據. Scan: a line reads the body top to bottom and back. Data: a point leaves each source on the heartbeat. Pulse: the trace below.
+    function data(c, t, age, amb) {
+      var cx = 400, cy = 280, sc = 200, scan = amb ? Math.sin(t * TAU / AMB) * .95 : 9;
+      body(c, cx, cy, sc, amb ? Math.sin(t * TAU / (AMB * 2)) * .2 : 0, scan);
+      if (amb) line(c, cx - 150, cy - scan * sc, cx + 150, cy - scan * sc, SCAN, .45);
       [['傾偈', 0, .8, 125, 80], ['驗血', -.3, .25, 105, 250], ['問卷', .02, .4, 685, 105], ['手錶', .41, -.02, 695, 300], ['戒指 · 快嚟啦', .44, -.13, 665, 470]].forEach(function (g, k) {
-        var a = clamp(b * 6 - k); if (!a) return;
+        var a = expo((age - .3 - k * ONLINE) / STATE); if (a <= 0) return;
         var soon = k === 4, ax = cx + g[1] * sc, ay = cy - g[2] * sc, w = soon ? 210 : 120, h = 48, x = g[3], y = g[4], ex = x + (x < cx ? w / 2 : -w / 2);
-        c.setLineDash(soon ? [6, 6] : []); line(c, ax, ay, ex, y, TEAL, a * (soon ? .3 : .45));
-        if (!soon) { pulse(c, ax, ay, ex, y, t * .7 + k * .23, INK, a); pulse(c, ax, ay, ex, y, t * .7 + k * .23 + .5, INK, a); }
-        dot(c, ax, ay, 4.5, TEAL, a);
-        rr(c, x - w / 2, y - h / 2, w, h, 24); c.globalAlpha = a; c.fillStyle = '#071615'; c.fill(); c.globalAlpha = a * (soon ? .6 : 1); c.strokeStyle = TEAL; c.lineWidth = 1.5; c.stroke(); c.setLineDash([]);
+        c.setLineDash(soon ? [6, 6] : []); line(c, ax, ay, ex, y, SCAN, a * (soon ? .3 : .45));
+        if (!soon && amb) { pulse(c, ax, ay, ex, y, t / (BEAT * 2) + k * .23, INK, a); if (!lite) pulse(c, ax, ay, ex, y, t / (BEAT * 2) + k * .23 + .5, INK, a); }
+        dot(c, ax, ay, 4.5, SCAN, a);
+        rr(c, x - w / 2, y - h / 2, w, h, 24); c.globalAlpha = a; c.fillStyle = '#071615'; c.fill(); c.globalAlpha = a * (soon ? .6 : 1); c.strokeStyle = SCAN; c.lineWidth = 1.5; c.stroke(); c.setLineDash([]);
         text(c, g[0], x, y + 1, 22, soon ? DIM : INK);
       });
-      c.globalAlpha = .9; c.strokeStyle = TEAL; c.lineWidth = 2; c.beginPath();
-      for (var x = 250; x <= 550; x += 2) { var f = (((x * .006 - t * .5) % 1) + 1) % 1, g = function (m, s) { return Math.exp(-Math.pow((f - m) / s, 2)); };
+      c.globalAlpha = .9; c.strokeStyle = SCAN; c.lineWidth = 2; c.beginPath();   // vital-sign trace: one complex per heartbeat
+      for (var x = 250; x <= 550; x += 2) { var f = (((x * .006 - (amb ? t / BEAT : 0)) % 1) + 1) % 1, g = function (m, s) { return Math.exp(-Math.pow((f - m) / s, 2)); };
         var y = 562 - 28 * g(.5, .012) + 9 * g(.46, .012) + 12 * g(.54, .012) - 5 * g(.72, .04); c[x === 250 ? 'moveTo' : 'lineTo'](x, y); }
       c.stroke();
     }
 
-    // 3 配方: data flows into ZNRS, which fills a box of 30 packs, 6 pills each
-    function formula(c, t, b) {
-      var CX = 330, CY = 300;
+    // 3 配方. Data: four inputs stream into ZNRS. Pulse: the core breathes on the heartbeat. The 30 packs light up once, left to right.
+    function formula(c, t, age, amb) {
+      var CX = 330, CY = 300, n = lite ? 4 : 7, k;
       [['會診', 140], ['驗血', 245], ['穿戴', 350], ['問卷', 455]].forEach(function (l, li) {
-        var a = clamp(b * 5 - li); if (!a) return; c.globalAlpha = a; text(c, l[0], 62, l[1], 22, DIM);
-        for (var n = 0; n < 7; n++) { var ph = (t * .32 + n / 7 + li * .13) % 1, x = 105 + (CX - 105) * ph, y = l[1] + (CY - l[1]) * ph * ph; dot(c, x, y, 3.2, (n + li) % 2 ? TEAL : SKY, a * Math.sin(ph * Math.PI)); }
+        var a = expo((age - .2 - li * ONLINE / 2) / STATE); if (a <= 0) return; c.globalAlpha = a; text(c, l[0], 62, l[1], 22, DIM);
+        if (amb) for (var q = 0; q < n; q++) { var ph = (t / (AMB / 2) + q / n + li * .13) % 1, x = 105 + (CX - 105) * ph, y = l[1] + (CY - l[1]) * ph * ph; dot(c, x, y, 3.2, (q + li) % 2 ? SCAN : DEEP, a * Math.sin(ph * Math.PI)); }
       });
-      [52, 68, 84].forEach(function (r, k) { var s = t * (k % 2 ? -1 : 1) * (.9 - k * .2) + k * 2; c.globalAlpha = .85; c.strokeStyle = k % 2 ? SKY : TEAL; c.lineWidth = 2.5; c.beginPath(); c.arc(CX, CY, r, s, s + Math.PI * 1.25); c.stroke(); });
+      var turn = amb ? t * TAU / AMB : 0;
+      [52, 68, 84].forEach(function (r, j) { var s = turn * (j % 2 ? -1 : 1) * (1 - j * .22) + j * 2; c.globalAlpha = .8; c.strokeStyle = j % 2 ? DEEP : SCAN; c.lineWidth = 2; c.beginPath(); c.arc(CX, CY, r, s, s + Math.PI * 1.25); c.stroke(); });
+      dot(c, CX, CY, 44, SCAN, .07 + .15 * (amb ? beat(t) : .5));
       c.globalAlpha = 1; text(c, 'ZNRS', CX, CY + 1, 27, INK, 700);
-      var f = (t % 14) / 14 * 34, filled = Math.min(30, Math.floor(f)), X0 = 520, Y0 = 165;
-      for (var k = 0; k < 30; k++) { var x = X0 + (k % 6) * 40, y = Y0 + Math.floor(k / 6) * 50; rr(c, x, y, 30, 40, 6);
-        if (k < filled) { c.globalAlpha = .92; c.fillStyle = TEAL; c.fill(); } else { c.globalAlpha = .4; c.strokeStyle = DIM; c.lineWidth = 1.2; c.stroke(); } }
-      if (filled < 30) { var tx = X0 + (filled % 6) * 40 + 15, ty = Y0 + Math.floor(filled / 6) * 50 + 20, ph = f % 1;
-        for (var j = 0; j < 6; j++) { var q = clamp(ph * 1.7 - j * .1); dot(c, 416 + (tx - 416) * q, CY + (ty - CY) * q, 3.6, INK, Math.sin(q * Math.PI)); } }
+      line(c, 420, CY, 508, CY, SCAN, .2);
+      if (amb) for (k = 0; k < (lite ? 2 : 4); k++) { var f = (t / (AMB / 3) + k / 4) % 1; dot(c, 420 + 88 * f, CY, 3.2, INK, Math.sin(f * Math.PI)); }
+      var X0 = 520, Y0 = 165, done = 0;
+      for (k = 0; k < 30; k++) { var v = clamp((age - .9 - k * CELL) / MICRO), px = X0 + (k % 6) * 40, py = Y0 + Math.floor(k / 6) * 50; if (v >= 1) done++;
+        rr(c, px, py, 30, 40, 6); c.globalAlpha = .4 * (1 - v); c.strokeStyle = DIM; c.lineWidth = 1.2; c.stroke();
+        if (v > 0) { c.globalAlpha = .92 * v; c.fillStyle = SCAN; c.fill(); } }
       c.globalAlpha = 1; text(c, '一盒 30 包', 635, 125, 26, INK, 700);
-      text(c, filled < 30 ? '第 ' + (filled + 1) + ' 包 · 每包 6 粒' : '30 包齊 · 每包 6 粒', 635, 448, 22, DIM);
+      text(c, done < 30 ? '第 ' + (done + 1) + ' 包 · 每包 6 粒' : '30 包齊 · 每包 6 粒', 635, 448, 22, DIM);
     }
 
-    // 4 Formula Evolution: the helix keeps turning while the formula steps v1.0, v1.1, v2.0
-    function evolve(c, t, b) {
-      var rows = Math.round(45 * clamp(b * 1.5)), wave = (t * .25 % 1) * 44;
+    // 4 Formula Evolution. The helix turns once per ambient cycle; the formula steps v1.0, v1.1, v2.0 and each state forms in place.
+    function evolve(c, t, age, amb) {
+      var rows = Math.round(45 * expo(age / 1.4)), turn = amb ? t * TAU / AMB : 0, wave = amb ? ((t / AMB) % 1) * 44 : -99;
       for (var i = 0; i < rows; i++) {
-        var y = 70 + i * 10.5, a = i * .33 + t * .9, cs = Math.cos(a), sn = Math.sin(a), x1 = 215 + cs * 70, x2 = 215 - cs * 70, hot = Math.max(0, 1 - Math.abs(i - wave) / 4);
-        if (i % 2 === 0) line(c, x1, y, x2, y, hot > .2 ? INK : TEAL, .25 + hot * .6, 1 + hot);
-        dot(c, x1, y, 3.4 + sn * 1.4, TEAL, .6 + .35 * sn); dot(c, x2, y, 3.4 - sn * 1.4, SKY, .6 - .35 * sn);
+        var y = 70 + i * 10.5, a = i * .33 + turn, cs = Math.cos(a), sn = Math.sin(a), x1 = 215 + cs * 70, x2 = 215 - cs * 70, hot = Math.max(0, 1 - Math.abs(i - wave) / 4);
+        if (i % 2 === 0) line(c, x1, y, x2, y, hot > .2 ? INK : SCAN, .22 + hot * .6);
+        dot(c, x1, y, 3.4 + sn * 1.4, SCAN, .6 + .35 * sn); dot(c, x2, y, 3.4 - sn * 1.4, DEEP, .6 - .35 * sn);
       }
-      var ph = (t % 10.5) / 3.5, st = Math.floor(ph), into = ph - st, counts = [0, 2, 4], n = counts[st], prev = st ? counts[st - 1] : 0, lv = (prev + (n - prev) * smooth(into * 3)) / 6;
-      c.globalAlpha = 1; text(c, '第 ' + (st + 1) + ' 個月', 590, 78, 22, TEAL); text(c, 'Formula ' + ['v1.0', 'v1.1', 'v2.0'][st], 590, 122, 40, INK, 700);
-      for (var k = 0; k < 6; k++) { var px = 452 + (k % 2) * 146, py = 172 + Math.floor(k / 2) * 60, ch = k >= 6 - n, fresh = ch && k < 6 - prev;
-        rr(c, px, py, 130, 44, 22);
-        if (ch) { c.globalAlpha = fresh ? .35 + .65 * smooth(into * 3) : 1; c.fillStyle = TEAL; c.fill(); } else { c.globalAlpha = .55; c.strokeStyle = DIM; c.lineWidth = 1.5; c.stroke(); }
-        line(c, px + 65, py + 6, px + 65, py + 38, ch ? '#000000' : DIM, ch ? .35 : .4, 1.5); }
+      var STAGE = AMB * 2 / 3, ph = amb ? (t % (STAGE * 3)) / STAGE : 2.999, st = Math.floor(ph), into = (ph - st) * STAGE;   // seconds into this version
+      var counts = [0, 2, 4], n = counts[st], prev = st ? counts[st - 1] : 0, form = expo(into / STATE), shift = expo(into / (STATE * 2)), lv = (prev + (n - prev) * shift) / 6;
+      c.globalAlpha = form; text(c, '第 ' + (st + 1) + ' 個月', 590, 78, 22, SCAN); text(c, 'Formula ' + ['v1.0', 'v1.1', 'v2.0'][st], 590, 122, 40, INK, 700);
+      for (var k = 0; k < 6; k++) { var px = 452 + (k % 2) * 146, py = 172 + Math.floor(k / 2) * 60, ch = k >= 6 - n, fresh = ch && k < 6 - prev, on = ch ? (fresh ? shift : 1) : 0;
+        rr(c, px, py, 130, 44, 22); c.globalAlpha = .55 * (1 - on); c.strokeStyle = DIM; c.lineWidth = 1.5; c.stroke();
+        if (on > 0) { c.globalAlpha = on; c.fillStyle = SCAN; c.fill(); }
+        line(c, px + 65, py + 6, px + 65, py + 38, on > .5 ? '#000000' : DIM, on > .5 ? .35 : .4, 1.5); }
       rr(c, 452, 372, 276, 8, 4); c.globalAlpha = .18; c.fillStyle = INK; c.fill();
-      if (lv > .01) { rr(c, 452, 372, 276 * lv, 8, 4); c.globalAlpha = 1; c.fillStyle = TEAL; c.fill(); }
+      if (lv > .01) { rr(c, 452, 372, 276 * lv, 8, 4); c.globalAlpha = 1; c.fillStyle = SCAN; c.fill(); }
       c.globalAlpha = 1; c.fillStyle = INK; c.fillRect(589, 364, 2, 24);
-      text(c, n ? '換咗 ' + n + ' / 6 粒 · ' + Math.round(n * 100 / 6) + '%' : '起點配方 · 6 粒', 590, 420, 22, INK);
+      c.globalAlpha = form; text(c, n ? '換咗 ' + n + ' / 6 粒 · ' + Math.round(n * 100 / 6) + '%' : '起點配方 · 6 粒', 590, 420, 22, INK);
       text(c, st === 2 ? '過咗一半，升做 v2.0' : st ? '未過一半，升細版本' : '之後每次都同 v1.0 比', 590, 452, 19, DIM);
     }
 
     var raf = 0, last = 0, list = [consult, data, formula, evolve].map(function (fn, k) {
-      var cv = document.getElementById('scene-' + (k + 1)); return { cv: cv, ctx: cv.getContext('2d'), fn: fn, live: false, t: 0, rate: k ? 1 : 2 / 3, hold: false };
+      var cv = document.getElementById('scene-' + (k + 1)); return { cv: cv, ctx: cv.getContext('2d'), fn: fn, live: false, seen: false, t: 0, age: 0, hold: false };
     });
-    function paint(s, dt) {
-      var cv = s.cv, w = cv.clientWidth; if (!w || !s.ctx) return;
-      var px = Math.round(w * Math.min(window.devicePixelRatio || 1, 2)); if (cv.width !== px) { cv.width = px; cv.height = Math.round(px * VH / VW); }
-      var c = s.ctx, k = cv.width / VW, r = cv.getBoundingClientRect();
-      c.setTransform(k, 0, 0, k, 0, 0); c.setLineDash([]); c.globalAlpha = 1; c.fillStyle = '#000000'; c.fillRect(0, 0, VW, VH);
-      if (!s.hold) s.t += dt * s.rate;
-      s.fn(c, still ? 2.3 : s.t, smooth((window.innerHeight - r.top) / (r.height * .9))); c.globalAlpha = 1;
+    function fit(s, w) { var px = Math.round(w * Math.min(window.devicePixelRatio || 1, 2)); if (px && s.cv.width !== px) { s.cv.width = px; s.cv.height = Math.round(px * VH / VW); } }
+    function paint(s, dt) {   // draws only: no layout is read inside the frame loop
+      var c = s.ctx, k = s.cv.width / VW; if (!c) return;
+      if (!s.hold) { s.t += dt; s.age += dt; }
+      c.setTransform(k, 0, 0, k, 0, 0); c.setLineDash([]); c.globalAlpha = 1; c.clearRect(0, 0, VW, VH);
+      s.fn(c, s.t, still ? 1e3 : s.age, !still); c.globalAlpha = 1;
     }
     function frame(ms) {
       var dt = last ? Math.min(.1, (ms - last) / 1000) : 0, any = false; raf = 0; last = ms;
@@ -532,9 +552,13 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
       if (any && !still) raf = requestAnimationFrame(frame); else last = 0;
     }
     function kick() { if (!raf) raf = requestAnimationFrame(frame); }
-    window.addEventListener('resize', kick); window.addEventListener('scroll', kick, { passive: true });
     list.forEach(function (s) {
-      if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { s.live = e[0].isIntersecting; if (s.live) kick(); }).observe(s.cv); else s.live = true;
+      if ('ResizeObserver' in window) new ResizeObserver(function (e) { fit(s, e[0].contentRect.width); kick(); }).observe(s.cv);
+      else { fit(s, s.cv.clientWidth); window.addEventListener('resize', function () { fit(s, s.cv.clientWidth); kick(); }); }
+      if ('IntersectionObserver' in window) new IntersectionObserver(function (e) {
+        var x = e[e.length - 1]; if (x.intersectionRatio >= .249) s.seen = true;   // start together with the block's reveal, then run whenever on screen
+        s.live = x.isIntersecting && s.seen; if (s.live) kick();
+      }, { threshold: [0, .25] }).observe(s.cv); else s.live = true;
     });
     if (window.matchMedia('(hover: hover)').matches) {   // mouse only: touch has no hover to leave
       list[0].cv.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') list[0].hold = true; });
