@@ -66,16 +66,41 @@ h1 span, h2 span { display: inline-block; }
 .steps a:hover { border-color: var(--accent); color: var(--accent); }
 .steps b { color: var(--accent); font-weight: 600; margin-right: 6px; font-variant-numeric: tabular-nums; }
 
-/* 1 orbit */
-.orbit { position: relative; width: min(100%, 520px); aspect-ratio: 1; }
-.ring { position: absolute; inset: 0; animation: spin 70s linear infinite; }
-.ring:nth-child(2) { animation-duration: 95s; animation-direction: reverse; }
-.ring:nth-child(3) { animation-duration: 130s; }
-.ring::before { content: ""; position: absolute; border-radius: 50%; border: 1px solid var(--line); inset: var(--inset); }
-.dot { position: absolute; width: var(--s); height: var(--s); margin: calc(var(--s) / -2); border-radius: 50%; background: var(--fg-2); opacity: .55; }
-.dot.on { background: var(--accent); opacity: 1; }
-.you { position: absolute; inset: 39%; border-radius: 50%; background: var(--fg); color: var(--alt); display: grid; place-items: center; font-size: clamp(28px, 6vw, 48px); font-weight: 700; box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent) 22%, transparent); }
-@keyframes spin { to { transform: rotate(360deg); } }
+/* 1 group chat */
+.room { width: min(100%, 560px); background: var(--bg); border-radius: 28px; overflow: hidden; text-align: left; display: flex; flex-direction: column;
+  border: 1px solid color-mix(in srgb, var(--line) 50%, transparent); box-shadow: 0 30px 60px -34px rgba(0, 0, 0, .3); }
+.room-head { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid color-mix(in srgb, var(--line) 50%, transparent); }
+.room-head .stack { display: flex; }
+.room-head .stack .av { margin-left: -10px; box-shadow: 0 0 0 2px var(--bg); }
+.room-head .stack .av:first-child { margin-left: 0; }
+.room-head b { display: block; font-size: 16px; font-weight: 600; }
+.room-head small { font-size: 12px; color: var(--fg-2); }
+.log { height: 400px; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; font-size: 15px; line-height: 1.45; }
+.sys { align-self: center; margin: 0; font-size: 12px; color: var(--fg-2); text-align: center; }
+.msg { display: flex; gap: 8px; align-items: flex-end; max-width: 88%; }
+.msg.me { align-self: flex-end; }
+.av { flex: none; width: 30px; height: 30px; border-radius: 50%; color: #ffffff; display: grid; place-items: center; font-size: 13px; font-weight: 600; background: hsl(var(--hue, 174) 42% 40%); }
+.nm { font-size: 11px; color: var(--fg-2); margin: 0 0 3px 12px; }
+.bb { background: var(--alt); padding: 9px 14px; border-radius: 18px; }
+.msg.me .bb { background: var(--accent); color: var(--bg); font-weight: 600; }
+.typing { display: flex; gap: 4px; padding: 14px; }
+.typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--fg-2); animation: blink 1s infinite; }
+.typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes blink { 0%, 60%, 100% { opacity: .25; } 30% { opacity: 1; } }
+.verdict { border: 1px solid var(--accent); background: var(--accent-soft); border-radius: 18px; padding: 16px 18px; }
+.verdict h3 { margin: 0 0 8px; font-size: 17px; color: var(--accent); }
+.verdict ul { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; }
+.verdict p { margin: 10px 0 0; font-size: 13px; font-weight: 600; }
+.dock { border-top: 1px solid color-mix(in srgb, var(--line) 50%, transparent); padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; max-height: 128px; overflow-y: auto; padding: 2px; }
+.chip { font: inherit; font-size: 13px; font-weight: 600; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.dock-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.count { font-size: 13px; color: var(--fg-2); font-variant-numeric: tabular-nums; }
+.btn { font: inherit; font-size: 15px; font-weight: 600; padding: 11px 20px; border-radius: 999px; border: 0; background: var(--accent); color: var(--bg); cursor: pointer; }
+.btn.ghost { background: var(--alt); color: var(--fg); }
+.btn:disabled { opacity: .4; cursor: default; }
+.chip:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* 2 data */
 .sources { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; width: 100%; margin: 0; padding: 0; list-style: none; }
@@ -167,12 +192,15 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
       <h2><span>成隊專科，</span><span>睇你一個。</span></h2>
       <p class="lede">幾十位專家圍住你轉，日日傾你嘅事。<strong>呢種待遇，出面俾唔到。</strong></p>
       <div class="visual">
-        <div class="orbit" id="orbit" role="img" aria-label="幾十位專家圍住你轉">
-          <div class="ring" style="--inset:22%"></div>
-          <div class="ring" style="--inset:11%"></div>
-          <div class="ring" style="--inset:0%"></div>
-          <div class="you">你</div>
+        <div class="room" id="room">
+          <div class="room-head">
+            <div class="stack" id="room-stack"></div>
+            <div><b>你嘅會診群組</b><small id="room-sub"></small></div>
+          </div>
+          <div class="log" id="room-log" aria-live="polite"></div>
+          <div class="dock" id="room-dock"></div>
         </div>
+        <p class="note">示範內容，唔係醫療建議。</p>
       </div>
     </div>
   </section>
@@ -266,20 +294,113 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
 
 <script>
 (function () {
-  // 36 specialists on three rings around "你"
-  var rings = document.querySelectorAll('#orbit .ring');
-  var spec = [{ n: 8, r: 28 }, { n: 12, r: 39 }, { n: 16, r: 50 }];
-  rings.forEach(function (ring, i) {
-    for (var k = 0; k < spec[i].n; k++) {
-      var a = (k / spec[i].n) * Math.PI * 2 + i * 0.4;
-      var d = document.createElement('span');
-      d.className = 'dot' + ((k + i) % 3 === 0 ? ' on' : '');
-      d.style.left = 50 + spec[i].r * Math.cos(a) + '%';
-      d.style.top = 50 + spec[i].r * Math.sin(a) + '%';
-      d.style.setProperty('--s', (10 + ((k * 7 + i * 3) % 4) * 4) + 'px');
-      ring.appendChild(d);
-    }
-  });
+  // Step 1 demo: pick five specialists, share data, watch them confer
+  var DOCS = [
+    ["心臟科", "靜止心率偏高少少，壓力大嗰幾日特別明顯。", "每日快步行 30 分鐘"],
+    ["內分泌科", "空腹血糖喺正常範圍嘅上邊，要留意。", "晚餐減少精製澱粉"],
+    ["腸胃科", "食飯時間唔定時，腸胃負擔會大。", "三餐定時，食慢啲"],
+    ["睡眠醫學", "深層睡眠唔夠，瞓得夜過起得早。", "十二點前上床，瞓前一個鐘唔睇手機"],
+    ["營養科", "維他命 D 同鎂都偏低，同少曬太陽有關。", "配方加返維他命 D 同鎂"],
+    ["皮膚科", "皮膚乾同瞓得差通常一齊出現。", "每日飲夠水"],
+    ["骨科", "坐得耐，下背同頸嘅負荷唔細。", "每坐一個鐘起身郁五分鐘"],
+    ["腦神經科", "專注力下晝跌得快，同睡眠質素有關。", "下晝唔好再飲咖啡"],
+    ["免疫科", "發炎指標輕微偏高，未到要擔心。", "多食深色蔬菜同魚"],
+    ["腎科", "腎功能正常，不過飲水量偏少。", "每日飲水分開幾次飲"],
+    ["肝膽科", "肝酵素正常偏高，留意酒精同夜瞓。", "一星期最少四日唔飲酒"],
+    ["呼吸科", "血氧喺瞓覺時有幾晚輕微跌。", "試下側瞓，再觀察兩星期"],
+    ["婦科", "鐵質儲備偏低，容易攰。", "配方補鐵，同維他命 C 一齊食"],
+    ["泌尿科", "夜晚起身去廁所打斷咗睡眠。", "瞓前兩個鐘少飲水"],
+    ["眼科", "睇螢幕時間長，眼乾。", "每 20 分鐘望遠 20 秒"],
+    ["精神科", "壓力指數連續幾星期偏高。", "每日留十分鐘靜落嚟唞氣"],
+    ["運動醫學", "活動量平日同週末差好遠。", "平日加兩次 20 分鐘肌力訓練"],
+    ["老人科", "肌肉量要趁早保住。", "每餐食夠蛋白質"],
+    ["中醫", "睇落係氣虛，兼瞓得唔好。", "少食生冷，早啲瞓"],
+    ["風濕科", "關節朝早有啲僵，暫時唔似發炎。", "朝早做五分鐘伸展"],
+    ["血液科", "血色素正常，鐵蛋白偏低。", "多食紅肉或者深綠色菜"],
+    ["耳鼻喉科", "鼻敏感會影響瞓覺質素。", "瞓房保持通風，勤換床單"],
+    ["家庭醫學", "整體指標穩定，有幾個位要跟進。", "三個月後再驗一次血"],
+    ["復康科", "姿勢問題令肩頸長期繃緊。", "調高螢幕到眼水平"],
+    ["過敏科", "過敏指數季節性上升。", "換季時減少戶外劇烈運動"],
+    ["疼痛科", "頭痛多數出現喺瞓得少嗰幾日。", "記低頭痛日子，對返睡眠"],
+    ["牙科", "牙肉發炎同全身發炎指標有關。", "每日用牙線"],
+    ["心理科", "情緒起伏同工作日程對得上。", "每星期留半日完全唔做嘢"],
+    ["體重管理", "腰圍比 BMI 更值得留意。", "每星期量一次腰圍"],
+    ["物理治療", "核心肌群弱，容易腰痛。", "每日做兩分鐘平板支撐"]
+  ];
+  var PICK = 5, log = document.getElementById('room-log'), dock = document.getElementById('room-dock'),
+      stack = document.getElementById('room-stack'), sub = document.getElementById('room-sub'),
+      run = 0, picked, quick = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function title(i) { var n = DOCS[i][0]; return n === '中醫' ? '中醫師' : n === '物理治療' ? '物理治療師' : n + '醫生'; }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function avatar(i) { var a = el('span', 'av', i < 0 ? 'Z' : DOCS[i][0][0]); if (i >= 0) a.style.setProperty('--hue', (i * 47) % 360); return a; }
+  function add(node) { log.appendChild(node); log.scrollTop = log.scrollHeight; return node; }
+  function sys(t) { return add(el('p', 'sys', t)); }
+  function bubble(i, content) {
+    var m = el('div', 'msg'), col = el('div');
+    col.appendChild(el('div', 'nm', i < 0 ? 'Zuply' : title(i)));
+    var bb = el('div', 'bb'); if (typeof content === 'string') bb.textContent = content; else bb.appendChild(content);
+    col.appendChild(bb); m.appendChild(avatar(i)); m.appendChild(col); return m;
+  }
+  function wait(ms) { return new Promise(function (r) { setTimeout(r, quick ? 60 : ms); }); }
+  async function say(i, text, id) {
+    var dots = el('div', 'typing'); dots.innerHTML = '<i></i><i></i><i></i>';
+    var t = add(bubble(i, dots)); await wait(1100); if (id !== run) return;
+    var real = bubble(i, text); log.replaceChild(real, t); log.scrollTop = log.scrollHeight; await wait(500);
+  }
+  function setDock() { dock.textContent = ''; for (var k = 0; k < arguments.length; k++) dock.appendChild(arguments[k]); }
+  function button(id, label, fn, ghost) { var b = el('button', 'btn' + (ghost ? ' ghost' : ''), label); b.type = 'button'; b.id = id; b.addEventListener('click', fn); return b; }
+  function head() {
+    stack.textContent = ''; picked.slice(0, 5).forEach(function (i) { stack.appendChild(avatar(i)); });
+    if (!stack.firstChild) stack.appendChild(avatar(-1));
+  }
+
+  function start() {
+    run++; picked = [0, 1, 3, 4, 16]; log.textContent = '';
+    sub.textContent = DOCS.length + ' 位專科醫生在線';
+    sys('群組入面有 ' + DOCS.length + ' 位專科醫生');
+    add(bubble(-1, '揀五位專科醫生入群組，佢哋會一齊睇你嘅數據。'));
+    var chips = el('div', 'chips'), count = el('span', 'count'), go = button('room-invite', '邀請入群組', invite);
+    function sync() { count.textContent = '已揀 ' + picked.length + ' / ' + PICK; go.disabled = picked.length !== PICK; head(); }
+    DOCS.forEach(function (d, i) {
+      var c = el('button', 'chip', d[0]); c.type = 'button'; c.id = 'room-chip-' + i;
+      c.setAttribute('aria-pressed', picked.indexOf(i) >= 0);
+      c.addEventListener('click', function () {
+        var at = picked.indexOf(i);
+        if (at >= 0) picked.splice(at, 1); else if (picked.length < PICK) picked.push(i); else return;
+        c.setAttribute('aria-pressed', at < 0); sync();
+      });
+      chips.appendChild(c);
+    });
+    var row = el('div', 'dock-row'); row.appendChild(count); row.appendChild(go);
+    setDock(chips, row); sync(); log.scrollTop = 0;
+  }
+  async function invite() {
+    var id = ++run; setDock(el('span', 'count', '邀請緊…'));
+    for (var k = 0; k < picked.length; k++) { sys(title(picked[k]) + ' 加入咗群組'); await wait(350); if (id !== run) return; }
+    sub.textContent = '你同 ' + PICK + ' 位專科醫生';
+    await say(-1, '齊人。上載體檢報告，或者俾系統讀取你嘅穿戴設備數據。', id); if (id !== run) return;
+    var row = el('div', 'dock-row');
+    row.appendChild(button('room-report', '上載體檢報告', function () { confer('report'); }));
+    row.appendChild(button('room-wearable', '讀取穿戴設備數據', function () { confer('wearable'); }, true));
+    setDock(row);
+  }
+  async function confer(kind) {
+    var id = ++run, p = picked.slice();
+    setDock(el('span', 'count', '各科醫生討論緊…'));
+    var me = el('div', 'msg me'); me.appendChild(el('div', 'bb', kind === 'report' ? '📄 體檢報告.pdf' : '⌚ 穿戴設備數據 · 過去 30 日')); add(me);
+    await wait(600); if (id !== run) return;
+    sys(PICK + ' 位醫生睇緊你嘅' + (kind === 'report' ? '體檢報告' : '穿戴設備數據'));
+    for (var k = 0; k < p.length; k++) { await say(p[k], DOCS[p[k]][1], id); if (id !== run) return; }
+    await say(p[1], '同意' + title(p[0]) + '嘅睇法，我呢邊見到嘅情況應該有關連。', id); if (id !== run) return;
+    await say(p[3], '咁建議要一齊夾，唔好各有各開。', id); if (id !== run) return;
+    await say(p[0], '好，我哋夾返一個結論。', id); if (id !== run) return;
+    var v = el('div', 'verdict'), ul = el('ul');
+    v.appendChild(el('h3', '', '養生結論'));
+    p.forEach(function (i) { ul.appendChild(el('li', '', DOCS[i][2])); });
+    v.appendChild(ul); v.appendChild(el('p', '', '呢個結論會寫入你下個月嘅配方。')); add(v);
+    setDock(button('room-again', '再試一次', start, true));
+  }
+  start();
   if (!('IntersectionObserver' in window)) return;
   var io = new IntersectionObserver(function (es) {
     es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
