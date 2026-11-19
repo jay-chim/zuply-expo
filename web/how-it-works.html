@@ -141,9 +141,17 @@ h1 span, h2 span { display: inline-block; }
 .sys { align-self: center; margin: 0; font-size: 12px; color: var(--fg-2); text-align: center; }
 .msg { display: flex; gap: 8px; align-items: flex-end; max-width: 88%; }
 .msg.me { align-self: flex-end; }
-.msg { animation: msgIn .55s var(--ease) both; }
+/* holo: each message forms out of blur; a thin seam of light flashes above it as it lands */
+.msg { position: relative; animation: msgIn var(--dur-msg) var(--ease) both; }
 .msg.is-typing { animation-duration: var(--dur-s); }
-@keyframes msgIn { from { opacity: 0; transform: translateY(10px); } }
+@keyframes msgIn { from { opacity: 0; filter: blur(6px); } }
+.msg:not(.is-typing)::before { content: ""; position: absolute; left: 0; right: 0; top: -6px; height: 1px; background: linear-gradient(90deg, transparent, var(--scan), transparent); opacity: 0; animation: seam var(--dur-m) var(--ease) both; }
+@keyframes seam { 40% { opacity: .9; } }
+/* scan: while the shared data is being read, a line sweeps the bubble and a percentage counts up */
+.msg.me .bb { position: relative; overflow: hidden; }
+.pct { display: inline-block; min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; }
+.msg.scanning .bb::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 44%, color-mix(in srgb, var(--bg) 70%, transparent) 50%, transparent 56%); transform: translateX(-100%); animation: sweep var(--dur-scan) var(--ease-scan) infinite; }
+@keyframes sweep { to { transform: translateX(100%); } }
 .av { flex: none; width: 30px; height: 30px; border-radius: 50%; color: #ffffff; display: grid; place-items: center; font-size: 13px; font-weight: 600; background: hsl(var(--hue, 174) 42% 40%); }
 .nm { font-size: 11px; color: var(--fg-2); margin: 0 0 3px 12px; }
 .bb { background: var(--alt); padding: 9px 14px; border-radius: 18px; }
@@ -153,6 +161,11 @@ h1 span, h2 span { display: inline-block; }
 .typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
 @keyframes blink { 0%, 60%, 100% { opacity: .25; } 30% { opacity: 1; } }
 .verdict { border: 1px solid var(--accent); background: var(--accent-soft); border-radius: 18px; padding: 16px 18px; }
+/* pulse: the verdict lands with one soft beat, its rim glow fades out, then it is still */
+.verdict { position: relative; animation: settle var(--dur-settle) var(--ease-pulse) both; }
+.verdict::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none; box-shadow: 0 0 0 1px var(--glow-hi), 0 0 22px var(--glow-hi); opacity: 0; animation: afterglow var(--dur-draw) var(--ease) both; }
+@keyframes settle { 0% { opacity: 0; } 30% { opacity: 1; } 50% { transform: scale(1.02); } }
+@keyframes afterglow { from { opacity: 1; } }
 .verdict h3 { margin: 0 0 8px; font-size: 17px; color: var(--accent); }
 .verdict ol { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; }
 .verdict p { margin: 10px 0 0; font-size: 13px; font-weight: 600; }
@@ -567,7 +580,12 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
     kick();
   })();
 
-  // Step 1 demo: pick five specialists, share data, watch them confer
+  // Timings for the page's own scripts, read once from the CSS tokens
+  var rootCss = getComputedStyle(document.documentElement);
+  function ms(name, fallback) { return (parseFloat(rootCss.getPropertyValue(name)) || fallback) * 1000; }
+  var TYPING = ms('--dur-typing', .4), GAP = ms('--dur-gap', .5), JOIN = ms('--dur-flash', .3), COUNT = ms('--dur-count', 1.4), ENTRANCE = ms('--dur-l', .7), STAGGER = ms('--stagger', .1);
+
+  // Step 1 demo: pick specialists, share data, watch them debate, get a ruling
   var DOCS = [
     ["心臟科", "靜止心率偏高少少，壓力大嗰幾日特別明顯。", "每日快步行 30 分鐘"],
     ["內分泌科", "空腹血糖喺正常範圍嘅上邊，要留意。", "晚餐減少精製澱粉"],
@@ -637,8 +655,20 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
   function clearTimers() { timers.forEach(clearTimeout); timers.length = 0; }
   async function say(i, text, id, tag) {
     var dots = el('div', 'typing'); dots.innerHTML = '<i></i><i></i><i></i>';
-    var t = add(bubble(i, dots)); t.classList.add('is-typing'); await wait(400); if (id !== run) return;
-    var real = bubble(i, text, tag); log.replaceChild(real, t); log.scrollTop = log.scrollHeight; await wait(500);
+    var t = add(bubble(i, dots)); t.classList.add('is-typing'); await wait(TYPING); if (id !== run) return;
+    var real = bubble(i, text, tag); log.replaceChild(real, t); log.scrollTop = log.scrollHeight; await wait(GAP);
+  }
+  // Scan analysis: 0 to 100% while the shared data is read. Frame-driven, and it stops with the run it belongs to.
+  function countUp(node, id) {
+    if (quick) { node.textContent = '100%'; return Promise.resolve(); }
+    return new Promise(function (done) {
+      var t0 = performance.now();
+      (function step() {
+        if (id !== run) return done();
+        var f = Math.min(1, (performance.now() - t0) / COUNT); node.textContent = Math.round(f * 100) + '%';
+        if (f < 1) requestAnimationFrame(step); else done();
+      })();
+    });
   }
   function setDock() { dock.textContent = ''; for (var k = 0; k < arguments.length; k++) dock.appendChild(arguments[k]); }
   function button(id, label, fn, ghost) { var b = el('button', 'btn' + (ghost ? ' ghost' : ''), label); b.type = 'button'; b.id = id; b.addEventListener('click', fn); return b; }
@@ -672,7 +702,7 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
   }
   async function invite() {
     var id = ++run; clearTimers(); setDock(el('span', 'count', '邀請緊…'));
-    for (var k = 0; k < picked.length; k++) { sys(title(picked[k]) + ' 加入咗群組'); await wait(300); if (id !== run) return; }
+    for (var k = 0; k < picked.length; k++) { sys(title(picked[k]) + ' 加入咗群組'); await wait(JOIN); if (id !== run) return; }
     sub.textContent = '你同 ' + picked.length + ' 位專科醫生';
     await say(-1, '齊人。上載體檢報告，或者俾系統讀取你嘅穿戴設備數據。', id); if (id !== run) return;
     var row = el('div', 'dock-row');
@@ -683,8 +713,10 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
   async function confer(kind) {
     var id = ++run, p = picked.slice(), n = p.length, k; clearTimers();
     setDock(el('span', 'count', '各科醫生辯論緊…'));
-    var me = el('div', 'msg me'); me.appendChild(el('div', 'bb', kind === 'report' ? '📄 體檢報告.pdf' : '⌚ 穿戴設備數據 · 過去 30 日')); add(me);
-    await wait(600); if (id !== run) return;
+    var me = el('div', 'msg me scanning'), bb = el('div', 'bb', kind === 'report' ? '📄 體檢報告.pdf' : '⌚ 穿戴設備數據 · 過去 30 日'), pct = el('span', 'pct', '0%');
+    pct.setAttribute('aria-hidden', 'true'); bb.appendChild(pct); me.appendChild(bb); add(me);
+    await countUp(pct, id); if (id !== run) return;
+    me.classList.remove('scanning'); await wait(JOIN); if (id !== run) return;
     sys('第一輪 · 各科立場');
     for (k = 0; k < n; k++) { await say(p[k], DOCS[p[k]][1], id); if (id !== run) return; }
     sys('第二輪 · 互相駁斥');
