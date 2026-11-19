@@ -103,6 +103,25 @@ h1 span, h2 span { display: inline-block; }
 @media (hover: hover) { .steps a:hover { border-color: var(--accent); color: var(--accent); } }
 .steps b { color: var(--accent); font-weight: 600; margin-right: 6px; font-variant-numeric: tabular-nums; }
 
+/* hero motion. holo: the headline forms phrase by phrase. pulse: an ECG trace draws in, then one beat runs along it. scan: a beam points down. */
+.hero h1 span { animation: holo var(--dur-l) var(--ease) both; }
+.hero h1 span + span { animation-delay: var(--stagger-holo); }
+@keyframes holo { from { opacity: 0; filter: blur(8px); } }
+.ecg { display: block; overflow: visible; }
+.hero .ecg { width: min(100%, 520px); height: auto; }
+.ecg path { fill: none; stroke: var(--trace); stroke-linecap: round; stroke-linejoin: round; }
+.ecg-base { stroke-width: 2; opacity: .4; stroke-dasharray: 100; }
+.ecg-beat { stroke-width: 3; stroke-dasharray: 12 88; opacity: 0; filter: drop-shadow(0 0 3px var(--glow-hi)); }
+.hero .ecg-base, .ecg.in .ecg-base { animation: ecgDraw var(--dur-draw) var(--ease-scan) both; }
+.hero .ecg-beat, .ecg.in .ecg-beat { animation: ecgOn var(--dur-s) var(--ease) var(--dur-draw) forwards, ecgFlow var(--dur-beat) var(--ease-scan) var(--dur-draw) infinite; }
+@keyframes ecgDraw { from { stroke-dashoffset: 100; } }
+@keyframes ecgOn { to { opacity: 1; } }
+@keyframes ecgFlow { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+.beam { position: relative; display: block; width: 2px; height: 56px; border-radius: 1px; overflow: hidden; background: color-mix(in srgb, var(--line) 55%, transparent); transition: opacity var(--dur-flash) var(--ease); }
+.beam::before { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent, var(--trace)); transform: translateY(-100%); animation: beam calc(var(--dur-beam) * var(--amb-x)) var(--ease-scan) infinite; }
+.beam.off { opacity: 0; pointer-events: none; }
+@keyframes beam { to { transform: translateY(100%); } }
+
 /* scenes: one always-dark looping canvas per step */
 .scene { width: 100%; max-width: 760px; aspect-ratio: 4 / 3; border-radius: 28px; overflow: hidden; background: #000000; }
 .scene canvas { display: block; width: 100%; height: 100%; }
@@ -241,12 +260,14 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
   <div class="wrap">
     <p class="eyebrow">Zuply 點運作</p>
     <h1><span>四步，</span><span>由你開始。</span></h1>
+    <svg class="ecg" viewBox="0 0 600 48" aria-hidden="true" focusable="false"><path class="ecg-base" pathLength="100" d="M0 30H116q6-7 12 0H140l4 5 6-30 6 37 5-12H172q9-10 18 0H266q6-7 12 0H290l4 5 6-30 6 37 5-12H322q9-10 18 0H416q6-7 12 0H440l4 5 6-30 6 37 5-12H472q9-10 18 0H600"/><path class="ecg-beat" pathLength="100" d="M0 30H116q6-7 12 0H140l4 5 6-30 6 37 5-12H172q9-10 18 0H266q6-7 12 0H290l4 5 6-30 6 37 5-12H322q9-10 18 0H416q6-7 12 0H440l4 5 6-30 6 37 5-12H472q9-10 18 0H600"/></svg>
     <ol class="steps">
       <li><a href="#step-1"><b>1</b>會診</a></li>
       <li><a href="#step-2"><b>2</b>數據</a></li>
       <li><a href="#step-3"><b>3</b>配方</a></li>
       <li><a href="#step-4"><b>4</b>Formula Evolution</a></li>
     </ol>
+    <span class="beam" aria-hidden="true"></span>
   </div>
 </header>
 
@@ -667,6 +688,12 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
     setDock(button('room-again', '再試一次', start, true));
   }
   start();
+  // Hero scan beam: fades out once the page has moved 100px, returns at the top
+  var beam = document.querySelector('.beam'), beamOff = false;
+  if (beam) window.addEventListener('scroll', function () {
+    var off = window.scrollY > 100; if (off !== beamOff) { beamOff = off; beam.classList.toggle('off', off); }
+  }, { passive: true });
+
   // Scroll reveal. Nothing is hidden by CSS alone: the observer's first report parks only what is still below the
   // viewport, so content stays visible if the observer never runs. Each block reveals once, then is unobserved.
   if (!('IntersectionObserver' in window) || quick) return;
