@@ -227,9 +227,27 @@ h1 span, h2 span { display: inline-block; }
 .znrs .out small { font-size: 12px; font-weight: 600; color: var(--accent); }
 .znrs .out strong { font-size: 22px; }
 .znrs .out span { font-size: 13px; color: var(--fg-2); font-weight: 600; }
+/* pulse: the ZNRS status light beats. holo: the four inputs read in one after another, once. */
+.znrs .who i { position: relative; }
+.znrs .who i::after { content: ""; position: absolute; inset: -5px; border-radius: 50%; background: var(--scan); opacity: 0; animation: beat var(--dur-beat) var(--ease-pulse) infinite; }
+@keyframes beat { 0% { opacity: 0; transform: scale(.6); } 35% { opacity: .45; transform: scale(1); } 100% { opacity: 0; transform: scale(1.6); } }
+.packrow.in .znrs li b { animation: holo var(--dur-m) var(--ease) both; animation-delay: calc(var(--dur-l) + var(--stagger) * var(--n, 0)); }
+.znrs li:nth-child(2) { --n: 1; } .znrs li:nth-child(3) { --n: 2; } .znrs li:nth-child(4) { --n: 3; }
 
 /* 4 evolution */
 .evo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; }
+/* data: a point of light runs the version line once, from v1.0 to the latest. pulse: the latest version breathes. */
+.evo { position: relative; container-type: inline-size; --run: calc(66.667cqw + 8px); }
+.evo::before, .evo::after { content: ""; position: absolute; top: -16px; height: 9px; pointer-events: none; }
+.evo::before { left: calc(100% / 6 - 8.5px); right: calc(100% / 6 - 8.5px);
+  background: radial-gradient(circle, var(--line) 0 2.5px, transparent 3px) 0 50% / 9px 9px no-repeat, radial-gradient(circle, var(--line) 0 2.5px, transparent 3px) 50% 50% / 9px 9px no-repeat,
+    radial-gradient(circle, var(--line) 0 2.5px, transparent 3px) 100% 50% / 9px 9px no-repeat, linear-gradient(var(--line), var(--line)) 50% 50% / 100% 1px no-repeat; }
+.evo::after { left: calc(100% * 5 / 6 - .5px); width: 9px; border-radius: 50%; background: var(--trace); box-shadow: 0 0 0 3px var(--glow-lo), 0 0 10px var(--glow-hi); }
+.evo.in::after { animation: travel var(--dur-travel) var(--ease-scan) both; }
+@keyframes travel { from { transform: translateX(calc(var(--run) * -1)); } }
+.month { position: relative; }
+.month:last-child::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; box-shadow: inset 0 0 0 1px var(--glow-hi), inset 0 0 22px var(--glow-lo); animation: breathe calc(var(--dur-breathe) * var(--amb-x)) var(--ease-pulse) infinite; }
+@keyframes breathe { 0%, 100% { opacity: .6; } 50% { opacity: 1; } }
 .month { background: var(--alt); border-radius: 22px; padding: 22px 20px 24px; text-align: left; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .month h3 { margin: 0; font-size: 15px; font-weight: 600; color: var(--fg-2); }
 .month h3 b { display: block; font-size: 28px; color: var(--fg); font-weight: 700; }
@@ -245,7 +263,11 @@ h1 span, h2 span { display: inline-block; }
 .bar { position: relative; height: 8px; border-radius: 4px; background: color-mix(in srgb, var(--line) 55%, transparent); }
 .bar::after { content: ""; position: absolute; left: 50%; top: -4px; bottom: -4px; width: 2px; background: var(--fg); }
 .bar i { display: block; height: 100%; width: var(--w); border-radius: 4px; background: var(--accent); transform-origin: left; }
-@media (max-width: 640px) { .evo { grid-template-columns: 1fr; } }
+@media (max-width: 640px) {
+  .evo { grid-template-columns: 1fr; --run: calc(100cqw - 9px); }
+  .evo::before { left: 0; right: 0; }
+  .evo::after { left: calc(100% - 9px); }
+}
 
 footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-align: center; border-top: 1px solid var(--line); }
 
