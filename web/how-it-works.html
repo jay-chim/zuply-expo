@@ -185,12 +185,17 @@ h1 span, h2 span { display: inline-block; }
 
 /* 2 data */
 .sources { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; width: 100%; margin: 0; padding: 0; list-style: none; }
-.sources li { position: relative; background: var(--alt); border-radius: 22px; padding: 28px 8px 22px; display: flex; flex-direction: column; align-items: center; gap: 14px; font-size: 17px; font-weight: 600; min-width: 0; }
+.sources li { position: relative; overflow: hidden; background: var(--alt); border-radius: 22px; padding: 28px 8px 22px; display: flex; flex-direction: column; align-items: center; gap: 14px; font-size: 17px; font-weight: 600; min-width: 0; }
+/* scan: one band of light crosses the card, the rim holds a teal glow for a moment, then lets go */
+.sources li::before, .sources li::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
+.sources li::before { border-radius: inherit; box-shadow: inset 0 0 0 1px var(--glow-hi), inset 0 0 18px var(--glow-lo); opacity: 0; }
+.sources li::after { background: linear-gradient(100deg, transparent 30%, var(--glow-hi) 50%, transparent 70%); transform: translateX(-100%); }
+.sources li.scan::after { animation: sweep var(--dur-scan) var(--ease-scan) both; }
+.sources li.scan::before { animation: rim calc(var(--dur-scan) + var(--dur-m)) var(--ease) both; }
+@keyframes rim { 57% { opacity: 1; } }
 .sources svg { width: 44px; height: 44px; stroke: var(--accent); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .soon { position: absolute; top: 10px; right: 10px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
-.pulse { width: 100%; height: auto; }
-.pulse path { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 900; animation: draw 5s ease-in-out infinite; }
-@keyframes draw { 0% { stroke-dashoffset: 900; } 60%, 100% { stroke-dashoffset: 0; } }
+.pulse { width: 100%; height: auto; }   /* drawn and animated by the shared .ecg rules */
 @media (max-width: 640px) {
   .sources { grid-template-columns: repeat(6, 1fr); }
   .sources li { grid-column: span 2; padding: 22px 6px 18px; font-size: 15px; }
@@ -321,7 +326,7 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
           <li><span class="soon">快嚟啦</span><svg viewBox="0 0 44 44" aria-hidden="true"><ellipse cx="22" cy="24" rx="14" ry="13"/><ellipse cx="22" cy="24" rx="10" ry="9"/><path d="M17 9l5-4 5 4"/></svg>戒指</li>
           <li><svg viewBox="0 0 44 44" aria-hidden="true"><rect x="9" y="8" width="26" height="31" rx="4"/><path d="M17 8V5h10v3M15 18l2 2 4-4M25 18h5M15 28l2 2 4-4M25 28h5"/></svg>問卷</li>
         </ul>
-        <svg class="pulse" viewBox="0 0 600 80" aria-hidden="true"><path d="M0 40H170l12-8 10 8h22l10-30 14 60 12-42 8 12H390l12-8 10 8H600"/></svg>
+        <svg class="pulse ecg" viewBox="0 0 600 80" aria-hidden="true" focusable="false"><path class="ecg-base" pathLength="100" d="M0 40H170l12-8 10 8h22l10-30 14 60 12-42 8 12H390l12-8 10 8H600"/><path class="ecg-beat" pathLength="100" d="M0 40H170l12-8 10 8h22l10-30 14 60 12-42 8 12H390l12-8 10 8H600"/></svg>
       </div>
     </div>
   </section>
@@ -750,6 +755,19 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
     var off = window.scrollY > 100; if (off !== beamOff) { beamOff = off; beam.classList.toggle('off', off); }
   }, { passive: true });
 
+  // Step 2 source cards: one scan sweep on mouse hover or on touch tap, and once in turn as the row forms.
+  // The card for a source that is not live yet is left alone.
+  var cards = Array.prototype.filter.call(document.querySelectorAll('.sources li'), function (li) { return !li.querySelector('.soon'); });
+  cards.forEach(function (li) {
+    li.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse' && !quick) li.classList.add('scan'); });
+    li.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse' && !quick) li.classList.add('scan'); });
+    li.addEventListener('animationend', function (e) { if (e.animationName === 'rim') li.classList.remove('scan'); });
+  });
+  function shown(t) {
+    t.classList.add('in');
+    if (t.classList.contains('sources') && !quick) cards.forEach(function (li, k) { setTimeout(function () { li.classList.add('scan'); }, ENTRANCE + k * STAGGER * 1.5); });
+  }
+
   // Scroll reveal. Nothing is hidden by CSS alone: the observer's first report parks only what is still below the
   // viewport, so content stays visible if the observer never runs. Each block reveals once, then is unobserved.
   if (!('IntersectionObserver' in window) || quick) return;
@@ -760,11 +778,11 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
       if (!seen.has(t)) {
         seen.add(t);
         if (!e.isIntersecting && e.boundingClientRect.top >= vh - 1) { t.classList.add('rv-wait'); return; }
-        t.classList.add('in'); io.unobserve(t); return;
+        shown(t); io.unobserve(t); return;
       }
       // a quarter of the block in view, or for blocks taller than the screen, 40% of the screen filled
       if (e.isIntersecting && (e.intersectionRatio >= .249 || e.intersectionRect.height >= vh * .4)) {
-        t.classList.add('rv-in', 'in'); t.classList.remove('rv-wait'); io.unobserve(t);
+        t.classList.add('rv-in'); t.classList.remove('rv-wait'); shown(t); io.unobserve(t);
         t.addEventListener('transitionend', function done(ev) { if (ev.target === t) { t.classList.remove('rv-in'); t.removeEventListener('transitionend', done); } });
       }
     });
