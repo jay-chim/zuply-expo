@@ -66,20 +66,10 @@ h1 span, h2 span { display: inline-block; }
 .steps a:hover { border-color: var(--accent); color: var(--accent); }
 .steps b { color: var(--accent); font-weight: 600; margin-right: 6px; font-variant-numeric: tabular-nums; }
 
-/* film: a deliberately always-dark sticky stage; scroll morphs one particle hologram through four forms */
-.film { position: relative; height: 420vh; background: #000000; color: #f5f5f7; }
-.stage { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 49px); height: calc(100vh - 49px); height: calc(100svh - 49px); overflow: hidden; }
-.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.stage::after { content: ""; position: absolute; inset: auto 0 0; height: 45%; background: linear-gradient(transparent, #000000 85%); pointer-events: none; }
-.cap { position: absolute; z-index: 1; left: 0; right: 0; bottom: clamp(28px, 7vh, 64px); text-align: center; opacity: 0; display: flex; flex-direction: column; gap: 6px; align-items: center;
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-.cap:first-of-type { opacity: 1; }
-.cap p { margin: 0; font-size: clamp(14px, 1.6vw, 19px); font-weight: 600; color: #2dd4bf; }
-.cap h2 { font-size: clamp(34px, 6vw, 68px); color: #f5f5f7; }
-.cap span { font-size: clamp(15px, 1.8vw, 21px); font-weight: 600; color: #a1a1a6; }
-.ticks { position: absolute; z-index: 1; right: max(16px, env(safe-area-inset-right, 0px)); top: 50%; transform: translateY(-50%); display: grid; gap: 10px; }
-.ticks i { width: 6px; height: 6px; border-radius: 50%; background: #f5f5f7; opacity: .25; transition: opacity .3s, transform .3s; }
-.ticks i.on { opacity: 1; transform: scale(1.5); background: #2dd4bf; }
+/* scenes: one always-dark looping canvas per step */
+.scene { width: 100%; max-width: 760px; aspect-ratio: 4 / 3; border-radius: 28px; overflow: hidden; background: #000000; }
+.scene canvas { display: block; width: 100%; height: 100%; }
+.visual { gap: clamp(24px, 4vw, 44px); }
 
 /* 1 group chat */
 .room { width: min(100%, 560px); background: var(--bg); border-radius: 28px; overflow: hidden; text-align: left; display: flex; flex-direction: column;
@@ -217,16 +207,6 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
   </div>
 </header>
 
-<section class="film" id="film" aria-label="四步概覽，向下捲動會轉換畫面">
-  <div class="stage">
-    <canvas id="film-canvas" aria-hidden="true"></canvas>
-    <div class="cap"><p>Step 1</p><h2>會診</h2><span>幾十位專家圍住你轉。</span></div>
-    <div class="cap"><p>Step 2</p><h2>數據</h2><span>你嘅身體講咩，我哋聽到。</span></div>
-    <div class="cap"><p>Step 3</p><h2>配方</h2><span>每月一盒 30 包，度身訂造。</span></div>
-    <div class="cap"><p>Step 4</p><h2>Formula Evolution</h2><span>身體唔會停喺原地，配方都唔會。</span></div>
-    <div class="ticks" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div>
-  </div>
-</section>
 
 <main>
   <section class="band alt" id="step-1">
@@ -235,6 +215,7 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
       <h2><span>成隊專科，</span><span>睇你一個。</span></h2>
       <p class="lede">幾十位專家圍住你轉，日日傾你嘅事。<strong>呢種待遇，出面俾唔到。</strong></p>
       <div class="visual">
+        <div class="scene"><canvas id="scene-1" role="img" aria-label="真人醫生同 AI 一齊為一位用戶會診"></canvas></div>
         <div class="room" id="room">
           <div class="room-head">
             <div class="stack" id="room-stack"></div>
@@ -254,6 +235,7 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
       <h2><span>身體講嘢，</span><span>我哋識聽。</span></h2>
       <p class="lede">傾偈、驗血、手錶、戒指（快嚟啦）、問卷。<strong>你嘅身體講咩，我哋聽到。</strong></p>
       <div class="visual">
+        <div class="scene"><canvas id="scene-2" role="img" aria-label="人體掃描，傾偈、驗血、手錶、戒指、問卷嘅數據由身體流出"></canvas></div>
         <ul class="sources">
           <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M8 11h28a3 3 0 0 1 3 3v15a3 3 0 0 1-3 3H21l-8 6v-6H8a3 3 0 0 1-3-3V14a3 3 0 0 1 3-3z"/><path d="M14 19h16M14 25h10"/></svg>傾偈</li>
           <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 5c6 8 11 14 11 21a11 11 0 0 1-22 0c0-7 5-13 11-21z"/><path d="M16 27a6 6 0 0 0 6 6"/></svg>驗血</li>
@@ -272,6 +254,7 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
       <h2><span>每月一盒 30 包，</span><span>度身訂造。</span></h2>
       <p class="lede">配方跟人走，唔係人跟配方走。<strong>ZNRS 系統讀晒你嘅數據，逐粒計出你嗰盒配方。</strong></p>
       <div class="visual">
+        <div class="scene"><canvas id="scene-3" role="img" aria-label="數據流入 ZNRS 系統，計出每包 6 粒、一盒 30 包"></canvas></div>
         <div class="packrow">
           <div class="pack" role="img" aria-label="寫上你名字嘅每月配方盒，一盒 30 包">
             <small>ZUPLY · 每月配方</small>
@@ -304,6 +287,7 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
       <h2><span>你變，</span><span>配方跟住變。</span></h2>
       <p class="lede">人哋賣 supplement，我哋養 formula。<strong>身體唔會停喺原地，配方都唔會。</strong></p>
       <div class="visual">
+        <div class="scene"><canvas id="scene-4" role="img" aria-label="DNA 螺旋同配方由 v1.0 演變到 v2.0"></canvas></div>
         <div class="evo">
           <div class="month">
             <h3>第 1 個月<b>Formula v1.0</b></h3>
@@ -352,78 +336,137 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
 
 <script>
 (function () {
-  // Film: one particle cloud, four target shapes, morphed by scroll position
+  // Scenes: four looping canvases, one per step; each builds up as it scrolls into view
   (function () {
-    var film = document.getElementById('film'), cv = document.getElementById('film-canvas');
-    var ctx = cv.getContext && cv.getContext('2d'); if (!ctx) return;
-    var caps = film.querySelectorAll('.cap'), ticks = film.querySelectorAll('.ticks i');
-    var N = 1700, TAU = Math.PI * 2, still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var VW = 800, VH = 600, TAU = Math.PI * 2, still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var FONT = getComputedStyle(document.body).fontFamily, TEAL = '#2dd4bf', SKY = '#7dd3fc', INK = '#f5f5f7', DIM = '#a1a1a6';
     var seed = 7; function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
-    function capsulePt(ax, ay, bx, by, r) {            // random point inside a 2D capsule, with depth
-      var t = rnd(), a = rnd() * TAU, d = Math.sqrt(rnd()) * r;
-      return [ax + (bx - ax) * t + Math.cos(a) * d, ay + (by - ay) * t + Math.sin(a) * d, (rnd() - .5) * r * 1.3];
+    function clamp(x) { return Math.max(0, Math.min(1, x)); }
+    function smooth(x) { x = clamp(x); return x * x * (3 - 2 * x); }
+    function cap(ax, ay, bx, by, r) { var t = rnd(), a = rnd() * TAU, d = Math.sqrt(rnd()) * r;
+      return [ax + (bx - ax) * t + Math.cos(a) * d, ay + (by - ay) * t + Math.sin(a) * d, (rnd() - .5) * r * 1.3]; }
+    var BODY = [], i, p;
+    for (i = 0; i < 900; i++) {
+      var u = rnd(), sd = rnd() < .5 ? -1 : 1;
+      if (u < .09) { var a0 = rnd() * TAU, r0 = .13 * Math.sqrt(rnd()); p = [Math.cos(a0) * r0, .8 + Math.sin(a0) * r0, (rnd() - .5) * .16]; }
+      else if (u < .12) p = cap(0, .62, 0, .68, .05);
+      else if (u < .46) { p = cap(0, 0, 0, .42, .2); p[0] *= 1 + (p[1] > .2 ? .25 : 0); }
+      else if (u < .64) p = cap(sd * .29, .5, sd * .43, -.1, .05);
+      else p = cap(sd * .11, -.12, sd * .15, -.95, .075);
+      BODY.push(p);
     }
-    var shapes = [[], [], [], []], i, t, a, r, p;
-    for (i = 0; i < N; i++) {
-      // 0 會診: a core with three tilted orbits
-      if (i % 5 === 0) { a = rnd() * TAU; t = Math.acos(2 * rnd() - 1); r = .17 * Math.cbrt(rnd());
-        p = [r * Math.sin(t) * Math.cos(a), r * Math.cos(t), r * Math.sin(t) * Math.sin(a)]; }
-      else { var k = i % 3, R = .5 + k * .22 + (rnd() - .5) * .025, tilt = [-.5, .35, 1.0][k]; a = rnd() * TAU;
-        var x = Math.cos(a) * R, z = Math.sin(a) * R; p = [x, z * Math.sin(tilt), z * Math.cos(tilt)]; }
-      shapes[0].push(p);
-      // 1 數據: a standing body
-      var u = rnd(), s = rnd() < .5 ? -1 : 1;
-      if (u < .09) { a = rnd() * TAU; t = Math.acos(2 * rnd() - 1); r = .13 * Math.cbrt(rnd()); p = [r * Math.sin(t) * Math.cos(a), .8 + r * Math.cos(t), r * Math.sin(t) * Math.sin(a)]; }
-      else if (u < .12) p = capsulePt(0, .62, 0, .68, .05);
-      else if (u < .46) { p = capsulePt(0, .0, 0, .42, .2); p[0] *= 1 + (p[1] > .2 ? .25 : 0); }
-      else if (u < .64) p = capsulePt(s * .29, .5, s * .43, -.1, .05);
-      else p = capsulePt(s * .11, -.12, s * .15, -.95, .075);
-      shapes[1].push(p);
-      // 2 配方: a capsule shell with granules inside
-      var L = .5, Rc = .3, y = (rnd() * 2 - 1) * (L + Rc), rr; a = rnd() * TAU;
-      rr = Math.abs(y) <= L ? Rc : Math.sqrt(Math.max(0, Rc * Rc - Math.pow(Math.abs(y) - L, 2)));
-      if (i % 4 === 0 && y < 0) rr *= Math.sqrt(rnd()) * .85;
-      p = [Math.cos(a) * rr, y, Math.sin(a) * rr];
-      var c = Math.cos(.6), sn = Math.sin(.6); shapes[2].push([p[0] * c - p[1] * sn, p[0] * sn + p[1] * c, p[2]]);
-      // 3 Evolution: a double helix with rungs
-      t = rnd() * 2 - 1;
-      if (i % 4 === 0) { t = Math.round(t * 11) / 11; a = t * 5.2; r = (rnd() * 2 - 1) * .3; p = [Math.cos(a) * r, t * .95, Math.sin(a) * r]; }
-      else { a = t * 5.2 + (i % 2 ? Math.PI : 0); r = .3 + (rnd() - .5) * .03; p = [Math.cos(a) * r, t * .95, Math.sin(a) * r]; }
-      shapes[3].push(p);
-    }
-    var W = 0, H = 0, dpr = 1, live = false, raf = 0;
-    function size() { dpr = Math.min(window.devicePixelRatio || 1, 2); W = cv.clientWidth; H = cv.clientHeight; cv.width = W * dpr; cv.height = H * dpr; }
-    function smooth(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
-    function frame(ms) {
-      raf = 0; if (!W) size();
-      var rect = film.getBoundingClientRect(), span = rect.height - H;
-      var prog = span > 0 ? Math.max(0, Math.min(1, (49 - rect.top) / span)) : 0;
-      var sc = prog * 3.999, A = Math.min(3, Math.floor(sc)), B = Math.min(3, A + 1), m = smooth((sc - A - .5) / .5);
-      var w = [0, 0, 0, 0]; w[A] += 1 - m; w[B] += m;
-      for (var c = 0; c < 4; c++) { caps[c].style.opacity = Math.max(0, w[c] * 2 - 1).toFixed(3); ticks[c].className = w[c] > .5 ? 'on' : ''; }
-      var time = still ? 0 : ms / 1000, spin = (time * .3 + prog * 6) % TAU; if (spin > Math.PI) spin -= TAU;
-      var ang = w[1] * .45 * Math.sin(time * .6 + prog * 20) + (1 - w[1]) * spin, ca = Math.cos(ang), sa = Math.sin(ang);
-      var scale = Math.min(W * .46, H * .29), cx = W / 2, cy = H * .39, scan = Math.sin(time * 1.1 + prog * 30) * .95, sa0 = shapes[A], sb0 = shapes[B];
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#000000'; ctx.fillRect(0, 0, W, H);
-      ctx.globalCompositeOperation = 'lighter';
-      for (var j = 0; j < N; j++) {
-        var pa = sa0[j], pb = sb0[j], lag = smooth(m * 1.5 - (j % 50) / 100);
-        var x = pa[0] + (pb[0] - pa[0]) * lag, y = pa[1] + (pb[1] - pa[1]) * lag, z = pa[2] + (pb[2] - pa[2]) * lag;
-        var X = x * ca + z * sa, Z = z * ca - x * sa, f = 2.6 / (2.6 + Z), px = cx + X * scale * f, py = cy - y * scale * f;
-        var hit = w[1] * Math.max(0, 1 - Math.abs(y - scan) / .06), sz = (j % 9 === 0 ? 2.4 : 1.4) * f + hit * 1.5;
-        ctx.globalAlpha = Math.min(1, (.35 + .5 * (1 - Z) / 2) + hit);
-        ctx.fillStyle = hit > .3 ? '#ffffff' : (j % 3 ? '#2dd4bf' : '#7dd3fc');
-        ctx.fillRect(px - sz / 2, py - sz / 2, sz, sz);
+    function body(c, cx, cy, sc, ang, scan) {
+      var ca = Math.cos(ang), sa = Math.sin(ang);
+      for (var j = 0; j < BODY.length; j++) {
+        var q = BODY[j], X = q[0] * ca + q[2] * sa, Z = q[2] * ca - q[0] * sa, hit = Math.max(0, 1 - Math.abs(q[1] - scan) / .06), z = 2 + hit * 2;
+        c.globalAlpha = Math.min(1, .5 + .4 * (1 - Z * 4) / 2 + hit); c.fillStyle = hit > .3 ? '#ffffff' : (j % 3 ? TEAL : SKY);
+        c.fillRect(cx + X * sc - z / 2, cy - q[1] * sc - z / 2, z, z);
       }
-      if (w[1] > .05) { ctx.globalAlpha = w[1] * .5; ctx.fillStyle = '#2dd4bf'; ctx.fillRect(cx - scale * .7, cy - scan * scale, scale * 1.4, 1); }
-      ctx.globalAlpha = 1;
-      if (live && !still) raf = requestAnimationFrame(frame);
     }
+    function text(c, str, x, y, size, col, weight) { c.font = (weight || 600) + ' ' + size + 'px ' + FONT; c.fillStyle = col; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(str, x, y); }
+    function rr(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+    function line(c, x1, y1, x2, y2, col, a, w) { c.globalAlpha = a; c.strokeStyle = col; c.lineWidth = w || 1; c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke(); }
+    function dot(c, x, y, r, col, a) { c.globalAlpha = a; c.fillStyle = col; c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); }
+    function pulse(c, x1, y1, x2, y2, ph, col, a) { var f = ((ph % 1) + 1) % 1; dot(c, x1 + (x2 - x1) * f, y1 + (y2 - y1) * f, 4, col, a * Math.sin(f * Math.PI)); }
+    function hex(c, x, y, r, rot) { c.beginPath(); for (var k = 0; k < 6; k++) { var a = rot + k * TAU / 6; c[k ? 'lineTo' : 'moveTo'](x + Math.cos(a) * r, y + Math.sin(a) * r); } c.closePath(); c.stroke(); }
+
+    // 1 會診: human doctors and AI take turns consulting one user
+    function consult(c, t, b) {
+      var seats = [[115, 125, 0], [115, 300, 1], [115, 475, 0], [685, 125, 1], [685, 300, 0], [685, 475, 1]], turn = t / 1.6, speaker = Math.floor(turn) % 6, beat = turn % 1;
+      body(c, 400, 285, 150, Math.sin(t * .5) * .35, -9);
+      c.globalAlpha = 1; text(c, '你', 400, 462, 26, INK, 700);
+      seats.forEach(function (s, k) {
+        var a = clamp(b * 7 - k); if (!a) return;
+        var x = s[0], y = s[1], left = x < 400, tx = 400 + (left ? -75 : 75), ty = 285 + (y - 300) * .35, on = k === speaker, col = s[2] ? SKY : INK, sx = x + (left ? 48 : -48);
+        line(c, sx, y, tx, ty, col, a * (on ? .75 : .2), on ? 1.6 : 1);
+        if (on) { for (var n = 0; n < 3; n++) pulse(c, sx, y, tx, ty, beat * 1.4 + n * .22, col, a);
+          c.globalAlpha = a * (1 - beat); c.strokeStyle = col; c.lineWidth = 2; c.beginPath(); c.arc(x, y, 48 + beat * 20, 0, TAU); c.stroke(); }
+        else pulse(c, tx, ty, sx, y, t * .3 + k * .37, TEAL, a * .6);
+        c.globalAlpha = a;
+        if (s[2]) { c.strokeStyle = SKY; c.lineWidth = 2; hex(c, x, y, 36, t * .4); c.strokeStyle = TEAL; c.lineWidth = 1.2; hex(c, x, y, 23, -t * .6); dot(c, x, y, 7 + 2 * Math.sin(t * 3 + k), SKY, a); }
+        else { c.fillStyle = INK; c.beginPath(); c.arc(x, y - 22, 16, 0, TAU); c.fill();
+          c.beginPath(); c.moveTo(x - 36, y + 42); c.quadraticCurveTo(x - 36, y, x, y); c.quadraticCurveTo(x + 36, y, x + 36, y + 42); c.closePath(); c.fill();
+          c.strokeStyle = '#0d9488'; c.lineWidth = 2.5; c.beginPath(); c.moveTo(x - 10, y + 1); c.lineTo(x, y + 16); c.lineTo(x + 10, y + 1); c.stroke();
+          c.fillStyle = '#0d9488'; c.fillRect(x + 12, y + 24, 12, 3.5); c.fillRect(x + 16.25, y + 19.75, 3.5, 12); }
+        c.globalAlpha = a; text(c, s[2] ? 'AI' : '真人醫生', x, y + (s[2] ? 62 : 64), 22, on ? INK : DIM);
+      });
+    }
+
+    // 2 數據: the body speaks; each source listens at its own spot
+    function data(c, t, b) {
+      var cx = 400, cy = 280, sc = 200, scan = Math.sin(t * 1.1) * .95;
+      body(c, cx, cy, sc, Math.sin(t * .6) * .3, scan);
+      line(c, cx - 150, cy - scan * sc, cx + 150, cy - scan * sc, TEAL, .45);
+      [['傾偈', 0, .8, 125, 80], ['驗血', -.3, .25, 105, 250], ['問卷', .02, .4, 685, 105], ['手錶', .41, -.02, 695, 300], ['戒指 · 快嚟啦', .44, -.13, 665, 470]].forEach(function (g, k) {
+        var a = clamp(b * 6 - k); if (!a) return;
+        var soon = k === 4, ax = cx + g[1] * sc, ay = cy - g[2] * sc, w = soon ? 210 : 120, h = 48, x = g[3], y = g[4], ex = x + (x < cx ? w / 2 : -w / 2);
+        c.setLineDash(soon ? [6, 6] : []); line(c, ax, ay, ex, y, TEAL, a * (soon ? .3 : .45));
+        if (!soon) { pulse(c, ax, ay, ex, y, t * .7 + k * .23, INK, a); pulse(c, ax, ay, ex, y, t * .7 + k * .23 + .5, INK, a); }
+        dot(c, ax, ay, 4.5, TEAL, a);
+        rr(c, x - w / 2, y - h / 2, w, h, 24); c.globalAlpha = a; c.fillStyle = '#071615'; c.fill(); c.globalAlpha = a * (soon ? .6 : 1); c.strokeStyle = TEAL; c.lineWidth = 1.5; c.stroke(); c.setLineDash([]);
+        text(c, g[0], x, y + 1, 22, soon ? DIM : INK);
+      });
+      c.globalAlpha = .9; c.strokeStyle = TEAL; c.lineWidth = 2; c.beginPath();
+      for (var x = 250; x <= 550; x += 2) { var f = (((x * .006 - t * .5) % 1) + 1) % 1, g = function (m, s) { return Math.exp(-Math.pow((f - m) / s, 2)); };
+        var y = 562 - 28 * g(.5, .012) + 9 * g(.46, .012) + 12 * g(.54, .012) - 5 * g(.72, .04); c[x === 250 ? 'moveTo' : 'lineTo'](x, y); }
+      c.stroke();
+    }
+
+    // 3 配方: data flows into ZNRS, which fills a box of 30 packs, 6 pills each
+    function formula(c, t, b) {
+      var CX = 330, CY = 300;
+      [['會診', 140], ['驗血', 245], ['穿戴', 350], ['問卷', 455]].forEach(function (l, li) {
+        var a = clamp(b * 5 - li); if (!a) return; c.globalAlpha = a; text(c, l[0], 62, l[1], 22, DIM);
+        for (var n = 0; n < 7; n++) { var ph = (t * .32 + n / 7 + li * .13) % 1, x = 105 + (CX - 105) * ph, y = l[1] + (CY - l[1]) * ph * ph; dot(c, x, y, 3.2, (n + li) % 2 ? TEAL : SKY, a * Math.sin(ph * Math.PI)); }
+      });
+      [52, 68, 84].forEach(function (r, k) { var s = t * (k % 2 ? -1 : 1) * (.9 - k * .2) + k * 2; c.globalAlpha = .85; c.strokeStyle = k % 2 ? SKY : TEAL; c.lineWidth = 2.5; c.beginPath(); c.arc(CX, CY, r, s, s + Math.PI * 1.25); c.stroke(); });
+      c.globalAlpha = 1; text(c, 'ZNRS', CX, CY + 1, 27, INK, 700);
+      var f = (t % 14) / 14 * 34, filled = Math.min(30, Math.floor(f)), X0 = 520, Y0 = 165;
+      for (var k = 0; k < 30; k++) { var x = X0 + (k % 6) * 40, y = Y0 + Math.floor(k / 6) * 50; rr(c, x, y, 30, 40, 6);
+        if (k < filled) { c.globalAlpha = .92; c.fillStyle = TEAL; c.fill(); } else { c.globalAlpha = .4; c.strokeStyle = DIM; c.lineWidth = 1.2; c.stroke(); } }
+      if (filled < 30) { var tx = X0 + (filled % 6) * 40 + 15, ty = Y0 + Math.floor(filled / 6) * 50 + 20, ph = f % 1;
+        for (var j = 0; j < 6; j++) { var q = clamp(ph * 1.7 - j * .1); dot(c, 416 + (tx - 416) * q, CY + (ty - CY) * q, 3.6, INK, Math.sin(q * Math.PI)); } }
+      c.globalAlpha = 1; text(c, '一盒 30 包', 635, 125, 26, INK, 700);
+      text(c, filled < 30 ? '第 ' + (filled + 1) + ' 包 · 每包 6 粒' : '30 包齊 · 每包 6 粒', 635, 448, 22, DIM);
+    }
+
+    // 4 Formula Evolution: the helix keeps turning while the formula steps v1.0, v1.1, v2.0
+    function evolve(c, t, b) {
+      var rows = Math.round(45 * clamp(b * 1.5)), wave = (t * .25 % 1) * 44;
+      for (var i = 0; i < rows; i++) {
+        var y = 70 + i * 10.5, a = i * .33 + t * .9, cs = Math.cos(a), sn = Math.sin(a), x1 = 215 + cs * 70, x2 = 215 - cs * 70, hot = Math.max(0, 1 - Math.abs(i - wave) / 4);
+        if (i % 2 === 0) line(c, x1, y, x2, y, hot > .2 ? INK : TEAL, .25 + hot * .6, 1 + hot);
+        dot(c, x1, y, 3.4 + sn * 1.4, TEAL, .6 + .35 * sn); dot(c, x2, y, 3.4 - sn * 1.4, SKY, .6 - .35 * sn);
+      }
+      var ph = (t % 10.5) / 3.5, st = Math.floor(ph), into = ph - st, counts = [0, 2, 4], n = counts[st], prev = st ? counts[st - 1] : 0, lv = (prev + (n - prev) * smooth(into * 3)) / 6;
+      c.globalAlpha = 1; text(c, '第 ' + (st + 1) + ' 個月', 590, 78, 22, TEAL); text(c, 'Formula ' + ['v1.0', 'v1.1', 'v2.0'][st], 590, 122, 40, INK, 700);
+      for (var k = 0; k < 6; k++) { var px = 452 + (k % 2) * 146, py = 172 + Math.floor(k / 2) * 60, ch = k >= 6 - n, fresh = ch && k < 6 - prev;
+        rr(c, px, py, 130, 44, 22);
+        if (ch) { c.globalAlpha = fresh ? .35 + .65 * smooth(into * 3) : 1; c.fillStyle = TEAL; c.fill(); } else { c.globalAlpha = .55; c.strokeStyle = DIM; c.lineWidth = 1.5; c.stroke(); }
+        line(c, px + 65, py + 6, px + 65, py + 38, ch ? '#000000' : DIM, ch ? .35 : .4, 1.5); }
+      rr(c, 452, 372, 276, 8, 4); c.globalAlpha = .18; c.fillStyle = INK; c.fill();
+      if (lv > .01) { rr(c, 452, 372, 276 * lv, 8, 4); c.globalAlpha = 1; c.fillStyle = TEAL; c.fill(); }
+      c.globalAlpha = 1; c.fillStyle = INK; c.fillRect(589, 364, 2, 24);
+      text(c, n ? '換咗 ' + n + ' / 6 粒 · ' + Math.round(n * 100 / 6) + '%' : '起點配方 · 6 粒', 590, 420, 22, INK);
+      text(c, st === 2 ? '過咗一半，升做 v2.0' : st ? '未過一半，升細版本' : '之後每次都同 v1.0 比', 590, 452, 19, DIM);
+    }
+
+    var raf = 0, list = [consult, data, formula, evolve].map(function (fn, k) {
+      var cv = document.getElementById('scene-' + (k + 1)); return { cv: cv, ctx: cv.getContext('2d'), fn: fn, live: false };
+    });
+    function paint(s, ms) {
+      var cv = s.cv, w = cv.clientWidth; if (!w || !s.ctx) return;
+      var px = Math.round(w * Math.min(window.devicePixelRatio || 1, 2)); if (cv.width !== px) { cv.width = px; cv.height = Math.round(px * VH / VW); }
+      var c = s.ctx, k = cv.width / VW, r = cv.getBoundingClientRect();
+      c.setTransform(k, 0, 0, k, 0, 0); c.setLineDash([]); c.globalAlpha = 1; c.fillStyle = '#000000'; c.fillRect(0, 0, VW, VH);
+      s.fn(c, still ? 2.3 : ms / 1000, smooth((window.innerHeight - r.top) / (r.height * .9))); c.globalAlpha = 1;
+    }
+    function frame(ms) { raf = 0; var any = false; list.forEach(function (s) { if (s.live) { paint(s, ms); any = true; } }); if (any && !still) raf = requestAnimationFrame(frame); }
     function kick() { if (!raf) raf = requestAnimationFrame(frame); }
-    window.addEventListener('resize', function () { size(); kick(); });
-    window.addEventListener('scroll', kick, { passive: true });
-    if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { live = e[0].isIntersecting; if (live) kick(); }).observe(film);
-    else live = true;
+    window.addEventListener('resize', kick); window.addEventListener('scroll', kick, { passive: true });
+    list.forEach(function (s) {
+      if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { s.live = e[0].isIntersecting; if (s.live) kick(); }).observe(s.cv); else s.live = true;
+    });
     kick();
   })();
 
