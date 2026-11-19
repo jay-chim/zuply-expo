@@ -147,6 +147,16 @@ h1 span, h2 span { display: inline-block; }
 .bubble { margin: 0; padding: 12px 16px; border-radius: 20px; background: var(--bg); max-width: 90%; }
 .bubble.me { align-self: flex-end; background: var(--accent); color: var(--bg); }
 
+.znrs { width: min(100%, 320px); background: var(--bg); border-radius: 22px; padding: 20px; display: flex; flex-direction: column; gap: 14px; text-align: left; }
+.znrs .who { font-size: 15px; color: var(--fg); }
+.znrs ul { margin: 0; padding: 0; list-style: none; }
+.znrs li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-top: 1px solid color-mix(in srgb, var(--line) 50%, transparent); font-size: 15px; font-weight: 600; }
+.znrs li b { font-size: 12px; font-weight: 600; color: var(--accent); }
+.znrs .out { background: var(--accent-soft); border-radius: 16px; padding: 14px 16px; display: grid; gap: 2px; }
+.znrs .out small { font-size: 12px; font-weight: 600; color: var(--accent); }
+.znrs .out strong { font-size: 22px; }
+.znrs .out span { font-size: 13px; color: var(--fg-2); font-weight: 600; }
+
 /* 4 evolution */
 .evo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; }
 .month { background: var(--alt); border-radius: 22px; padding: 22px 20px 24px; text-align: left; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
@@ -260,7 +270,7 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
     <div class="wrap">
       <p class="eyebrow">Step 3 · 配方</p>
       <h2><span>每月一盒 30 包，</span><span>度身訂造。</span></h2>
-      <p class="lede">配方跟人走，唔係人跟配方走。<strong>營養師真人跟進，唔係 chatbot 求其答。</strong></p>
+      <p class="lede">配方跟人走，唔係人跟配方走。<strong>ZNRS 系統讀晒你嘅數據，逐粒計出你嗰盒配方。</strong></p>
       <div class="visual">
         <div class="packrow">
           <div class="pack" role="img" aria-label="寫上你名字嘅每月配方盒，一盒 30 包">
@@ -269,15 +279,19 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
             <dl>
               <div><dt>屬於</dt><dd>你</dd></div>
               <div><dt>每月</dt><dd>一盒 30 包</dd></div>
-              <div><dt>跟進</dt><dd>營養師真人</dd></div>
+              <div><dt>配方</dt><dd>ZNRS 系統計算</dd></div>
             </dl>
           </div>
-          <div class="chat" aria-label="營養師對話示意">
-            <div class="who"><i></i>你嘅營養師 · 真人</div>
-            <p class="bubble">今個月瞓得點？我睇咗你啲數據，想同你傾下。</p>
-            <p class="bubble me">好咗啲，不過下晝仲係好攰。</p>
-            <p class="bubble">收到，下個月嗰盒配方我幫你調。</p>
-            <p class="note">對話示意</p>
+          <div class="znrs" aria-label="ZNRS 系統運算示意">
+            <div class="who"><i></i>ZNRS 系統</div>
+            <ul>
+              <li><span>會診裁決</span><b>已讀</b></li>
+              <li><span>驗血報告</span><b>已讀</b></li>
+              <li><span>穿戴設備數據</span><b>已讀</b></li>
+              <li><span>問卷</span><b>已讀</b></li>
+            </ul>
+            <div class="out"><small>ZNRS 計出</small><strong>你嘅 6 粒配方</strong><span>× 30 包 · 每月一盒</span></div>
+            <p class="note">運算示意。營養師覆核後出貨。</p>
           </div>
         </div>
       </div>
