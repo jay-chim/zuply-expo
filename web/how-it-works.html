@@ -1,0 +1,289 @@
+<title>Zuply 點運作</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;600;700&display=swap">
+<style>
+/* Layout: full-width alternating bands, each a centred stack of eyebrow, oversized headline, one paragraph, one visual. */
+:root {
+  --bg: #ffffff;
+  --alt: #f5f5f7;
+  --fg: #1d1d1f;
+  --fg-2: #6e6e73;
+  --line: #d2d2d7;
+  --accent: #0d9488;
+  --accent-soft: #d5f2ee;
+  --nav: rgba(255, 255, 255, .78);
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang HK", "PingFang TC", "Noto Sans HK", "Microsoft JhengHei", sans-serif;
+  --h: clamp(34px, 8.6vw, 88px);
+  --p: clamp(18px, 2.3vw, 26px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #000000; --alt: #161617; --fg: #f5f5f7; --fg-2: #a1a1a6; --line: #424245;
+    --accent: #2dd4bf; --accent-soft: #0f3b37; --nav: rgba(22, 22, 23, .78); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #000000; --alt: #161617; --fg: #f5f5f7; --fg-2: #a1a1a6; --line: #424245;
+  --accent: #2dd4bf; --accent-soft: #0f3b37; --nav: rgba(22, 22, 23, .78); color-scheme: dark;
+}
+
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+a { color: inherit; text-decoration: none; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+
+.wrap {
+  max-width: 1040px; margin-inline: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* nav */
+.nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9; background: var(--nav);
+  -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 50%, transparent); }
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 48px; }
+.brand { font-weight: 700; font-size: 18px; letter-spacing: -.01em; }
+.nav ul { display: flex; gap: clamp(12px, 3vw, 32px); margin: 0; padding: 0; list-style: none; font-size: 13px; color: var(--fg-2); }
+.nav li a:hover { color: var(--fg); }
+
+/* bands */
+.band { text-align: center; }
+.band.alt { background: var(--alt); }
+.band .wrap { padding-block: clamp(72px, 12vw, 150px); display: flex; flex-direction: column; align-items: center; gap: clamp(16px, 2.2vw, 26px); }
+.hero .wrap { padding-block: clamp(64px, 10vw, 120px); }
+.eyebrow { margin: 0; font-size: clamp(15px, 1.8vw, 21px); font-weight: 600; color: var(--accent); }
+h1, h2 { margin: 0; font-size: var(--h); line-height: 1.12; font-weight: 700; letter-spacing: -.015em; text-wrap: balance; }
+h1 span, h2 span { display: inline-block; }
+.lede { margin: 0; max-width: 26em; font-size: var(--p); line-height: 1.5; font-weight: 600; color: var(--fg-2); text-wrap: pretty; }
+.lede strong { color: var(--fg); font-weight: 600; display: inline-block; }
+.visual { margin-top: clamp(28px, 5vw, 64px); width: 100%; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.note { margin: 0; font-size: 12px; color: var(--fg-2); }
+
+.steps { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: clamp(12px, 2vw, 24px) 0 0; padding: 0; list-style: none; }
+.steps a { display: block; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--line); font-size: 15px; font-weight: 600; }
+.steps a:hover { border-color: var(--accent); color: var(--accent); }
+.steps b { color: var(--accent); font-weight: 600; margin-right: 6px; font-variant-numeric: tabular-nums; }
+
+/* 1 orbit */
+.orbit { position: relative; width: min(100%, 520px); aspect-ratio: 1; }
+.ring { position: absolute; inset: 0; animation: spin 70s linear infinite; }
+.ring:nth-child(2) { animation-duration: 95s; animation-direction: reverse; }
+.ring:nth-child(3) { animation-duration: 130s; }
+.ring::before { content: ""; position: absolute; border-radius: 50%; border: 1px solid var(--line); inset: var(--inset); }
+.dot { position: absolute; width: var(--s); height: var(--s); margin: calc(var(--s) / -2); border-radius: 50%; background: var(--fg-2); opacity: .55; }
+.dot.on { background: var(--accent); opacity: 1; }
+.you { position: absolute; inset: 39%; border-radius: 50%; background: var(--fg); color: var(--alt); display: grid; place-items: center; font-size: clamp(28px, 6vw, 48px); font-weight: 700; box-shadow: 0 0 0 10px color-mix(in srgb, var(--accent) 22%, transparent); }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* 2 data */
+.sources { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; width: 100%; margin: 0; padding: 0; list-style: none; }
+.sources li { position: relative; background: var(--alt); border-radius: 22px; padding: 28px 8px 22px; display: flex; flex-direction: column; align-items: center; gap: 14px; font-size: 17px; font-weight: 600; min-width: 0; }
+.sources svg { width: 44px; height: 44px; stroke: var(--accent); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.soon { position: absolute; top: 10px; right: 10px; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+.pulse { width: 100%; height: auto; }
+.pulse path { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 900; animation: draw 5s ease-in-out infinite; }
+@keyframes draw { 0% { stroke-dashoffset: 900; } 60%, 100% { stroke-dashoffset: 0; } }
+@media (max-width: 640px) {
+  .sources { grid-template-columns: repeat(6, 1fr); }
+  .sources li { grid-column: span 2; padding: 22px 6px 18px; font-size: 15px; }
+  .sources li:nth-child(4) { grid-column: 2 / span 2; }
+}
+
+/* 3 pack */
+.packrow { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: clamp(20px, 5vw, 56px); width: 100%; }
+.pack { flex: none; width: min(100%, 280px); aspect-ratio: 5 / 7; border-radius: 18px; padding: 26px 24px; text-align: left; display: flex; flex-direction: column; justify-content: space-between;
+  color: #ffffff; background: linear-gradient(160deg, #14b8a6, #0f766e 70%); box-shadow: 0 30px 60px -24px color-mix(in srgb, #0f766e 70%, transparent); position: relative; overflow: hidden; }
+.pack::before { content: ""; position: absolute; inset: 14px 0 auto; border-top: 2px dashed rgba(255, 255, 255, .45); }
+.pack small { font-size: 12px; letter-spacing: .14em; opacity: .85; margin-top: 12px; }
+.pack .big { font-size: 34px; font-weight: 700; line-height: 1.15; }
+.pack dl { margin: 0; display: grid; gap: 6px; font-size: 13px; }
+.pack dl div { display: flex; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, .3); padding-top: 6px; }
+.pack dt { opacity: .8; } .pack dd { margin: 0; font-weight: 600; }
+.chat { width: min(100%, 320px); display: flex; flex-direction: column; gap: 10px; text-align: left; font-size: 16px; line-height: 1.45; }
+.who { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--fg-2); }
+.who i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.bubble { margin: 0; padding: 12px 16px; border-radius: 20px; background: var(--bg); max-width: 90%; }
+.bubble.me { align-self: flex-end; background: var(--accent); color: var(--bg); }
+
+/* 4 evolution */
+.evo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; }
+.month { background: var(--alt); border-radius: 22px; padding: 22px 20px 24px; text-align: left; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.month h3 { margin: 0; font-size: 15px; font-weight: 600; color: var(--fg-2); }
+.month h3 b { display: block; font-size: 28px; color: var(--fg); font-weight: 700; }
+.month ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.month li { font-size: 13px; font-weight: 600; display: grid; gap: 5px; }
+.bar { height: 8px; border-radius: 4px; background: color-mix(in srgb, var(--line) 55%, transparent); }
+.bar i { display: block; height: 100%; width: var(--w); border-radius: 4px; background: var(--accent); transform-origin: left; }
+.month li.new span::after { content: "新加"; margin-left: 6px; font-size: 11px; padding: 1px 6px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+@media (max-width: 640px) { .evo { grid-template-columns: 1fr; } }
+
+footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-align: center; border-top: 1px solid var(--line); }
+
+/* entrance: plays when a band scrolls in; resting state is fully visible */
+.in > .wrap > * { animation: rise .9s cubic-bezier(.2, .7, .2, 1) both; }
+.in > .wrap > :nth-child(2) { animation-delay: .08s; }
+.in > .wrap > :nth-child(3) { animation-delay: .16s; }
+.in > .wrap > :nth-child(4) { animation-delay: .24s; }
+.in .bar i { animation: grow 1.2s .4s cubic-bezier(.2, .7, .2, 1) both; }
+@keyframes rise { from { opacity: .001; transform: translateY(28px); } }
+@keyframes grow { from { transform: scaleX(0); } }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before { animation: none !important; }
+}
+</style>
+
+<nav class="nav" aria-label="步驟">
+  <div class="wrap">
+    <a class="brand" href="#top">Zuply</a>
+    <ul>
+      <li><a href="#step-1">會診</a></li>
+      <li><a href="#step-2">數據</a></li>
+      <li><a href="#step-3">配方</a></li>
+      <li><a href="#step-4">Evolution</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="band hero" id="top">
+  <div class="wrap">
+    <p class="eyebrow">Zuply 點運作</p>
+    <h1><span>四步，</span><span>由你開始。</span></h1>
+    <ol class="steps">
+      <li><a href="#step-1"><b>1</b>會診</a></li>
+      <li><a href="#step-2"><b>2</b>數據</a></li>
+      <li><a href="#step-3"><b>3</b>配方</a></li>
+      <li><a href="#step-4"><b>4</b>Formula Evolution</a></li>
+    </ol>
+  </div>
+</header>
+
+<main>
+  <section class="band alt" id="step-1">
+    <div class="wrap">
+      <p class="eyebrow">Step 1 · 會診</p>
+      <h2><span>成隊專科，</span><span>睇你一個。</span></h2>
+      <p class="lede">幾十位專家圍住你轉，日日傾你嘅事。<strong>呢種待遇，出面俾唔到。</strong></p>
+      <div class="visual">
+        <div class="orbit" id="orbit" role="img" aria-label="幾十位專家圍住你轉">
+          <div class="ring" style="--inset:22%"></div>
+          <div class="ring" style="--inset:11%"></div>
+          <div class="ring" style="--inset:0%"></div>
+          <div class="you">你</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="step-2">
+    <div class="wrap">
+      <p class="eyebrow">Step 2 · 數據</p>
+      <h2><span>身體講嘢，</span><span>我哋識聽。</span></h2>
+      <p class="lede">傾偈、驗血、手錶、戒指（快嚟啦）、問卷。<strong>你嘅身體講咩，我哋聽到。</strong></p>
+      <div class="visual">
+        <ul class="sources">
+          <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M8 11h28a3 3 0 0 1 3 3v15a3 3 0 0 1-3 3H21l-8 6v-6H8a3 3 0 0 1-3-3V14a3 3 0 0 1 3-3z"/><path d="M14 19h16M14 25h10"/></svg>傾偈</li>
+          <li><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 5c6 8 11 14 11 21a11 11 0 0 1-22 0c0-7 5-13 11-21z"/><path d="M16 27a6 6 0 0 0 6 6"/></svg>驗血</li>
+          <li><svg viewBox="0 0 44 44" aria-hidden="true"><rect x="12" y="11" width="20" height="22" rx="6"/><path d="M16 11l1-7h10l1 7M16 33l1 7h10l1-7M17 23h3l2-4 3 7 1-3h2"/></svg>手錶</li>
+          <li><span class="soon">快嚟啦</span><svg viewBox="0 0 44 44" aria-hidden="true"><ellipse cx="22" cy="24" rx="14" ry="13"/><ellipse cx="22" cy="24" rx="10" ry="9"/><path d="M17 9l5-4 5 4"/></svg>戒指</li>
+          <li><svg viewBox="0 0 44 44" aria-hidden="true"><rect x="9" y="8" width="26" height="31" rx="4"/><path d="M17 8V5h10v3M15 18l2 2 4-4M25 18h5M15 28l2 2 4-4M25 28h5"/></svg>問卷</li>
+        </ul>
+        <svg class="pulse" viewBox="0 0 600 80" aria-hidden="true"><path d="M0 40H170l12-8 10 8h22l10-30 14 60 12-42 8 12H390l12-8 10 8H600"/></svg>
+      </div>
+    </div>
+  </section>
+
+  <section class="band alt" id="step-3">
+    <div class="wrap">
+      <p class="eyebrow">Step 3 · 配方</p>
+      <h2><span>每月一包，</span><span>度身訂造。</span></h2>
+      <p class="lede">配方跟人走，唔係人跟配方走。<strong>營養師真人跟進，唔係 chatbot 求其答。</strong></p>
+      <div class="visual">
+        <div class="packrow">
+          <div class="pack" role="img" aria-label="寫上你名字嘅每月配方包">
+            <small>ZUPLY · 每月配方</small>
+            <div class="big">為你<br>一個人配</div>
+            <dl>
+              <div><dt>屬於</dt><dd>你</dd></div>
+              <div><dt>週期</dt><dd>每月一包</dd></div>
+              <div><dt>跟進</dt><dd>營養師真人</dd></div>
+            </dl>
+          </div>
+          <div class="chat" aria-label="營養師對話示意">
+            <div class="who"><i></i>你嘅營養師 · 真人</div>
+            <p class="bubble">今個月瞓得點？我睇咗你啲數據，想同你傾下。</p>
+            <p class="bubble me">好咗啲，不過下晝仲係好攰。</p>
+            <p class="bubble">收到，下個月包配方我幫你調。</p>
+            <p class="note">對話示意</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="step-4">
+    <div class="wrap">
+      <p class="eyebrow">Step 4 · Formula Evolution</p>
+      <h2><span>你變，</span><span>配方跟住變。</span></h2>
+      <p class="lede">人哋賣 supplement，我哋養 formula。<strong>身體唔會停喺原地，配方都唔會。</strong></p>
+      <div class="visual">
+        <div class="evo">
+          <div class="month">
+            <h3>第 1 個月<b>Formula v1</b></h3>
+            <ul>
+              <li><span>維生素D3</span><div class="bar"><i style="--w:45%"></i></div></li>
+              <li><span>鎂</span><div class="bar"><i style="--w:70%"></i></div></li>
+              <li><span>維生素B群</span><div class="bar"><i style="--w:35%"></i></div></li>
+            </ul>
+          </div>
+          <div class="month">
+            <h3>第 2 個月<b>Formula v2</b></h3>
+            <ul>
+              <li><span>維生素D3</span><div class="bar"><i style="--w:65%"></i></div></li>
+              <li><span>鎂</span><div class="bar"><i style="--w:55%"></i></div></li>
+              <li><span>維生素B群</span><div class="bar"><i style="--w:50%"></i></div></li>
+            </ul>
+          </div>
+          <div class="month">
+            <h3>第 3 個月<b>Formula v3</b></h3>
+            <ul>
+              <li><span>維生素D3</span><div class="bar"><i style="--w:60%"></i></div></li>
+              <li><span>鎂</span><div class="bar"><i style="--w:40%"></i></div></li>
+              <li><span>維生素B群</span><div class="bar"><i style="--w:50%"></i></div></li>
+              <li class="new"><span>輔酶Q10</span><div class="bar"><i style="--w:30%"></i></div></li>
+            </ul>
+          </div>
+        </div>
+        <p class="note">示意圖。實際成分同份量跟你嘅數據而定。</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap">Zuply · 配方跟人走</div></footer>
+
+<script>
+(function () {
+  // 36 specialists on three rings around "你"
+  var rings = document.querySelectorAll('#orbit .ring');
+  var spec = [{ n: 8, r: 28 }, { n: 12, r: 39 }, { n: 16, r: 50 }];
+  rings.forEach(function (ring, i) {
+    for (var k = 0; k < spec[i].n; k++) {
+      var a = (k / spec[i].n) * Math.PI * 2 + i * 0.4;
+      var d = document.createElement('span');
+      d.className = 'dot' + ((k + i) % 3 === 0 ? ' on' : '');
+      d.style.left = 50 + spec[i].r * Math.cos(a) + '%';
+      d.style.top = 50 + spec[i].r * Math.sin(a) + '%';
+      d.style.setProperty('--s', (10 + ((k * 7 + i * 3) % 4) * 4) + 'px');
+      ring.appendChild(d);
+    }
+  });
+  if (!('IntersectionObserver' in window)) return;
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.18 });
+  document.querySelectorAll('.band').forEach(function (b) { io.observe(b); });
+})();
+</script>
