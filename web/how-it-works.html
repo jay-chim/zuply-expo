@@ -371,7 +371,7 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
       for (var c = 0; c < 4; c++) { caps[c].style.opacity = Math.max(0, w[c] * 2 - 1).toFixed(3); ticks[c].className = w[c] > .5 ? 'on' : ''; }
       var time = still ? 0 : ms / 1000, spin = (time * .3 + prog * 6) % TAU; if (spin > Math.PI) spin -= TAU;
       var ang = w[1] * .45 * Math.sin(time * .6 + prog * 20) + (1 - w[1]) * spin, ca = Math.cos(ang), sa = Math.sin(ang);
-      var scale = Math.min(W * .46, H * .31), cx = W / 2, cy = H * .43, scan = Math.sin(time * 1.1 + prog * 30) * .95, sa0 = shapes[A], sb0 = shapes[B];
+      var scale = Math.min(W * .46, H * .29), cx = W / 2, cy = H * .39, scan = Math.sin(time * 1.1 + prog * 30) * .95, sa0 = shapes[A], sb0 = shapes[B];
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = '#000000'; ctx.fillRect(0, 0, W, H);
       ctx.globalCompositeOperation = 'lighter';
       for (var j = 0; j < N; j++) {
