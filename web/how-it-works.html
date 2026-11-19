@@ -15,6 +15,10 @@
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang HK", "PingFang TC", "Noto Sans HK", "Microsoft JhengHei", sans-serif;
   --h: clamp(34px, 8.6vw, 88px);
   --p: clamp(18px, 2.3vw, 26px);
+  --dur-s: .2s;   /* micro-interactions: buttons, chips, links */
+  --dur-m: .45s;  /* card-level state changes */
+  --dur-l: .65s;  /* scroll reveal */
+  --ease: cubic-bezier(.16, 1, .3, 1);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -46,6 +50,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-
 .nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 48px; }
 .brand { font-weight: 700; font-size: 18px; letter-spacing: -.01em; }
 .nav ul { display: flex; gap: clamp(12px, 3vw, 32px); margin: 0; padding: 0; list-style: none; font-size: 13px; color: var(--fg-2); }
+.nav li a { transition: color var(--dur-s) var(--ease); }
 .nav li a:hover { color: var(--fg); }
 
 /* bands */
@@ -62,7 +67,8 @@ h1 span, h2 span { display: inline-block; }
 .note { margin: 0; font-size: 12px; color: var(--fg-2); }
 
 .steps { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: clamp(12px, 2vw, 24px) 0 0; padding: 0; list-style: none; }
-.steps a { display: block; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--line); font-size: 15px; font-weight: 600; }
+.steps a { display: block; padding: 9px 18px; border-radius: 999px; border: 1px solid var(--line); font-size: 15px; font-weight: 600;
+  transition: transform var(--dur-s) var(--ease), border-color var(--dur-s) var(--ease), color var(--dur-s) var(--ease); }
 .steps a:hover { border-color: var(--accent); color: var(--accent); }
 .steps b { color: var(--accent); font-weight: 600; margin-right: 6px; font-variant-numeric: tabular-nums; }
 
@@ -84,6 +90,9 @@ h1 span, h2 span { display: inline-block; }
 .sys { align-self: center; margin: 0; font-size: 12px; color: var(--fg-2); text-align: center; }
 .msg { display: flex; gap: 8px; align-items: flex-end; max-width: 88%; }
 .msg.me { align-self: flex-end; }
+.msg { animation: msgIn .55s var(--ease) both; }
+.msg.is-typing { animation-duration: var(--dur-s); }
+@keyframes msgIn { from { opacity: 0; transform: translateY(10px); } }
 .av { flex: none; width: 30px; height: 30px; border-radius: 50%; color: #ffffff; display: grid; place-items: center; font-size: 13px; font-weight: 600; background: hsl(var(--hue, 174) 42% 40%); }
 .nm { font-size: 11px; color: var(--fg-2); margin: 0 0 3px 12px; }
 .bb { background: var(--alt); padding: 9px 14px; border-radius: 18px; }
@@ -105,6 +114,9 @@ h1 span, h2 span { display: inline-block; }
 .btn { font: inherit; font-size: 15px; font-weight: 600; padding: 11px 20px; border-radius: 999px; border: 0; background: var(--accent); color: var(--bg); cursor: pointer; }
 .btn.ghost { background: var(--alt); color: var(--fg); }
 .btn:disabled { opacity: .4; cursor: default; }
+.chip, .btn { transition: transform var(--dur-s) var(--ease), background-color var(--dur-s) var(--ease), border-color var(--dur-s) var(--ease), color var(--dur-s) var(--ease), opacity var(--dur-s) var(--ease); }
+@media (hover: hover) { .steps a:hover, .chip:hover, .btn:not(:disabled):hover { transform: translateY(-2px); } }
+.steps a:active, .chip:active, .btn:not(:disabled):active { transform: scale(.97); }
 .chip:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* 2 data */
@@ -168,17 +180,16 @@ h1 span, h2 span { display: inline-block; }
 
 footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-align: center; border-top: 1px solid var(--line); }
 
-/* entrance: plays when a band scrolls in; resting state is fully visible */
-.in > .wrap > * { animation: rise .9s cubic-bezier(.2, .7, .2, 1) both; }
-.in > .wrap > :nth-child(2) { animation-delay: .08s; }
-.in > .wrap > :nth-child(3) { animation-delay: .16s; }
-.in > .wrap > :nth-child(4) { animation-delay: .24s; }
-.in .bar i { animation: grow 1.2s .4s cubic-bezier(.2, .7, .2, 1) both; }
-@keyframes rise { from { opacity: .001; transform: translateY(28px); } }
+/* entrance: once the observer is live it parks blocks still below the viewport, then each rises in once as it enters */
+.rv-wait { opacity: 0; transform: translateY(24px); }
+.rv-in { transition: opacity var(--dur-l) var(--ease), transform var(--dur-l) var(--ease); }
+.rv-in.d1 { transition-delay: .1s; }
+.rv-in.d2 { transition-delay: .2s; }
+.in .bar i { animation: grow 1.2s .4s var(--ease) both; }
 @keyframes grow { from { transform: scaleX(0); } }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  *, *::before { animation: none !important; }
+  *, *::before { animation: none !important; transition: none !important; }
 }
 </style>
 
@@ -451,22 +462,31 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
       text(c, st === 2 ? '過咗一半，升做 v2.0' : st ? '未過一半，升細版本' : '之後每次都同 v1.0 比', 590, 452, 19, DIM);
     }
 
-    var raf = 0, list = [consult, data, formula, evolve].map(function (fn, k) {
-      var cv = document.getElementById('scene-' + (k + 1)); return { cv: cv, ctx: cv.getContext('2d'), fn: fn, live: false };
+    var raf = 0, last = 0, list = [consult, data, formula, evolve].map(function (fn, k) {
+      var cv = document.getElementById('scene-' + (k + 1)); return { cv: cv, ctx: cv.getContext('2d'), fn: fn, live: false, t: 0, rate: k ? 1 : 2 / 3, hold: false };
     });
-    function paint(s, ms) {
+    function paint(s, dt) {
       var cv = s.cv, w = cv.clientWidth; if (!w || !s.ctx) return;
       var px = Math.round(w * Math.min(window.devicePixelRatio || 1, 2)); if (cv.width !== px) { cv.width = px; cv.height = Math.round(px * VH / VW); }
       var c = s.ctx, k = cv.width / VW, r = cv.getBoundingClientRect();
       c.setTransform(k, 0, 0, k, 0, 0); c.setLineDash([]); c.globalAlpha = 1; c.fillStyle = '#000000'; c.fillRect(0, 0, VW, VH);
-      s.fn(c, still ? 2.3 : ms / 1000, smooth((window.innerHeight - r.top) / (r.height * .9))); c.globalAlpha = 1;
+      if (!s.hold) s.t += dt * s.rate;
+      s.fn(c, still ? 2.3 : s.t, smooth((window.innerHeight - r.top) / (r.height * .9))); c.globalAlpha = 1;
     }
-    function frame(ms) { raf = 0; var any = false; list.forEach(function (s) { if (s.live) { paint(s, ms); any = true; } }); if (any && !still) raf = requestAnimationFrame(frame); }
+    function frame(ms) {
+      var dt = last ? Math.min(.1, (ms - last) / 1000) : 0, any = false; raf = 0; last = ms;
+      list.forEach(function (s) { if (s.live) { paint(s, dt); any = true; } });
+      if (any && !still) raf = requestAnimationFrame(frame); else last = 0;
+    }
     function kick() { if (!raf) raf = requestAnimationFrame(frame); }
     window.addEventListener('resize', kick); window.addEventListener('scroll', kick, { passive: true });
     list.forEach(function (s) {
       if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { s.live = e[0].isIntersecting; if (s.live) kick(); }).observe(s.cv); else s.live = true;
     });
+    if (window.matchMedia('(hover: hover)').matches) {   // mouse only: touch has no hover to leave
+      list[0].cv.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') list[0].hold = true; });
+      list[0].cv.addEventListener('pointerleave', function () { list[0].hold = false; });
+    }
     kick();
   })();
 
@@ -535,10 +555,12 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
     var bb = el('div', 'bb'); if (typeof content === 'string') bb.textContent = content; else bb.appendChild(content);
     col.appendChild(bb); m.appendChild(avatar(i)); m.appendChild(col); return m;
   }
-  function wait(ms) { return new Promise(function (r) { setTimeout(r, quick ? 60 : ms); }); }
+  var timers = [];
+  function wait(ms) { return new Promise(function (r) { timers.push(setTimeout(r, quick ? 60 : ms)); }); }
+  function clearTimers() { timers.forEach(clearTimeout); timers.length = 0; }
   async function say(i, text, id, tag) {
     var dots = el('div', 'typing'); dots.innerHTML = '<i></i><i></i><i></i>';
-    var t = add(bubble(i, dots)); await wait(850); if (id !== run) return;
+    var t = add(bubble(i, dots)); t.classList.add('is-typing'); await wait(400); if (id !== run) return;
     var real = bubble(i, text, tag); log.replaceChild(real, t); log.scrollTop = log.scrollHeight; await wait(500);
   }
   function setDock() { dock.textContent = ''; for (var k = 0; k < arguments.length; k++) dock.appendChild(arguments[k]); }
@@ -549,7 +571,7 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
   }
 
   function start() {
-    run++; picked = [3, 4, 16]; log.textContent = '';
+    run++; clearTimers(); picked = [3, 4, 16]; log.textContent = '';
     sub.textContent = DOCS.length + ' 位專科醫生在線';
     sys('群組入面有 ' + DOCS.length + ' 位專科醫生');
     add(bubble(-1, '隨你揀邊幾位專科醫生入群組。佢哋會睇你嘅數據，然後辯論邊樣最緊要。'));
@@ -572,7 +594,7 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
     setDock(chips, row); sync(); log.scrollTop = 0;
   }
   async function invite() {
-    var id = ++run; setDock(el('span', 'count', '邀請緊…'));
+    var id = ++run; clearTimers(); setDock(el('span', 'count', '邀請緊…'));
     for (var k = 0; k < picked.length; k++) { sys(title(picked[k]) + ' 加入咗群組'); await wait(300); if (id !== run) return; }
     sub.textContent = '你同 ' + picked.length + ' 位專科醫生';
     await say(-1, '齊人。上載體檢報告，或者俾系統讀取你嘅穿戴設備數據。', id); if (id !== run) return;
@@ -582,7 +604,7 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
     setDock(row);
   }
   async function confer(kind) {
-    var id = ++run, p = picked.slice(), n = p.length, k;
+    var id = ++run, p = picked.slice(), n = p.length, k; clearTimers();
     setDock(el('span', 'count', '各科醫生辯論緊…'));
     var me = el('div', 'msg me'); me.appendChild(el('div', 'bb', kind === 'report' ? '📄 體檢報告.pdf' : '⌚ 穿戴設備數據 · 過去 30 日')); add(me);
     await wait(600); if (id !== run) return;
@@ -613,10 +635,29 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
     setDock(button('room-again', '再試一次', start, true));
   }
   start();
-  if (!('IntersectionObserver' in window)) return;
+  // Scroll reveal. Nothing is hidden by CSS alone: the observer's first report parks only what is still below the
+  // viewport, so content stays visible if the observer never runs. Each block reveals once, then is unobserved.
+  if (!('IntersectionObserver' in window) || quick) return;
+  var seen = new WeakSet();
   var io = new IntersectionObserver(function (es) {
-    es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-  }, { threshold: 0.18 });
-  document.querySelectorAll('.band').forEach(function (b) { io.observe(b); });
+    es.forEach(function (e) {
+      var t = e.target, vh = e.rootBounds ? e.rootBounds.height : window.innerHeight;
+      if (!seen.has(t)) {
+        seen.add(t);
+        if (!e.isIntersecting && e.boundingClientRect.top >= vh - 1) { t.classList.add('rv-wait'); return; }
+        t.classList.add('in'); io.unobserve(t); return;
+      }
+      // a quarter of the block in view, or for blocks taller than the screen, 40% of the screen filled
+      if (e.isIntersecting && (e.intersectionRatio >= .249 || e.intersectionRect.height >= vh * .4)) {
+        t.classList.add('rv-in', 'in'); t.classList.remove('rv-wait'); io.unobserve(t);
+        t.addEventListener('transitionend', function done(ev) { if (ev.target === t) { t.classList.remove('rv-in'); t.removeEventListener('transitionend', done); } });
+      }
+    });
+  }, { threshold: [0, .05, .1, .15, .2, .25] });
+  document.querySelectorAll('main .band > .wrap > :not(.visual), main .band .visual > *').forEach(function (n) {
+    var k = n.parentNode.classList.contains('wrap') ? Array.prototype.indexOf.call(n.parentNode.children, n) : 0;
+    if (k) n.classList.add(k === 1 ? 'd1' : 'd2');
+    io.observe(n);
+  });
 })();
 </script>
