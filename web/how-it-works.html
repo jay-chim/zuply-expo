@@ -152,11 +152,18 @@ h1 span, h2 span { display: inline-block; }
 .month { background: var(--alt); border-radius: 22px; padding: 22px 20px 24px; text-align: left; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .month h3 { margin: 0; font-size: 15px; font-weight: 600; color: var(--fg-2); }
 .month h3 b { display: block; font-size: 28px; color: var(--fg); font-weight: 700; }
-.month ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
-.month li { font-size: 13px; font-weight: 600; display: grid; gap: 5px; }
-.bar { height: 8px; border-radius: 4px; background: color-mix(in srgb, var(--line) 55%, transparent); }
+.month h3 b { font-variant-numeric: tabular-nums; }
+.month ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.month li { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; padding: 8px 10px; border-radius: 12px; background: var(--bg); }
+.month li::before { content: ""; flex: none; width: 26px; height: 12px; border-radius: 6px; background: linear-gradient(90deg, var(--line) 50%, color-mix(in srgb, var(--line) 45%, transparent) 50%); }
+.month li.chg { color: var(--accent); }
+.month li.chg::before { background: linear-gradient(90deg, var(--accent) 50%, var(--accent-soft) 50%); }
+.month li.new::after { content: "新"; margin-left: auto; font-size: 11px; padding: 1px 7px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+.diff { margin-top: auto; display: grid; gap: 6px; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.diff small { font-size: 12px; font-weight: 400; color: var(--fg-2); }
+.bar { position: relative; height: 8px; border-radius: 4px; background: color-mix(in srgb, var(--line) 55%, transparent); }
+.bar::after { content: ""; position: absolute; left: 50%; top: -4px; bottom: -4px; width: 2px; background: var(--fg); }
 .bar i { display: block; height: 100%; width: var(--w); border-radius: 4px; background: var(--accent); transform-origin: left; }
-.month li.new span::after { content: "新加"; margin-left: 6px; font-size: 11px; padding: 1px 6px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
 @media (max-width: 640px) { .evo { grid-template-columns: 1fr; } }
 
 footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-align: center; border-top: 1px solid var(--line); }
@@ -285,32 +292,43 @@ footer .wrap { padding-block: 28px; font-size: 12px; color: var(--fg-2); text-al
       <div class="visual">
         <div class="evo">
           <div class="month">
-            <h3>第 1 個月<b>Formula v1</b></h3>
+            <h3>第 1 個月<b>Formula v1.0</b></h3>
             <ul>
-              <li><span>維生素D3</span><div class="bar"><i style="--w:45%"></i></div></li>
-              <li><span>鎂</span><div class="bar"><i style="--w:70%"></i></div></li>
-              <li><span>維生素B群</span><div class="bar"><i style="--w:35%"></i></div></li>
+              <li>維生素D3</li>
+              <li>鎂</li>
+              <li>維生素B群</li>
+              <li>維生素C</li>
+              <li>鋅</li>
+              <li>輔酶Q10</li>
             </ul>
+            <div class="diff"><span>起點配方 · 6 粒</span><div class="bar"><i style="--w:0%"></i></div><small>之後每次都同 v1.0 比</small></div>
           </div>
           <div class="month">
-            <h3>第 2 個月<b>Formula v2</b></h3>
+            <h3>第 2 個月<b>Formula v1.1</b></h3>
             <ul>
-              <li><span>維生素D3</span><div class="bar"><i style="--w:65%"></i></div></li>
-              <li><span>鎂</span><div class="bar"><i style="--w:55%"></i></div></li>
-              <li><span>維生素B群</span><div class="bar"><i style="--w:50%"></i></div></li>
+              <li>維生素D3</li>
+              <li>鎂</li>
+              <li>維生素B群</li>
+              <li>維生素C</li>
+              <li class="chg new">Omega-3 魚油</li>
+              <li class="chg new">益生菌</li>
             </ul>
+            <div class="diff"><span>換咗 2 / 6 粒 · 33%</span><div class="bar"><i style="--w:33%"></i></div><small>未過一半，升細版本</small></div>
           </div>
           <div class="month">
-            <h3>第 3 個月<b>Formula v3</b></h3>
+            <h3>第 3 個月<b>Formula v2.0</b></h3>
             <ul>
-              <li><span>維生素D3</span><div class="bar"><i style="--w:60%"></i></div></li>
-              <li><span>鎂</span><div class="bar"><i style="--w:40%"></i></div></li>
-              <li><span>維生素B群</span><div class="bar"><i style="--w:50%"></i></div></li>
-              <li class="new"><span>輔酶Q10</span><div class="bar"><i style="--w:30%"></i></div></li>
+              <li>維生素D3</li>
+              <li>鎂</li>
+              <li class="chg">Omega-3 魚油</li>
+              <li class="chg">益生菌</li>
+              <li class="chg new">鐵</li>
+              <li class="chg new">葉黃素</li>
             </ul>
+            <div class="diff"><span>換咗 4 / 6 粒 · 67%</span><div class="bar"><i style="--w:67%"></i></div><small>過咗一半，升做 v2.0</small></div>
           </div>
         </div>
-        <p class="note">示意圖。實際成分同份量跟你嘅數據而定。</p>
+        <p class="note">每包 6 粒。同 v1.0 比，換咗超過 50% 先升 v2.0，直線係 50% 界線。示意圖，實際成分跟你嘅數據而定。</p>
       </div>
     </div>
   </section>
