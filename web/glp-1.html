@@ -1,0 +1,431 @@
+<title>Zuply GLP-1</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;600;700&display=swap">
+<style>
+/* Layout: product-page skeleton. Centred bands in order: hero with a dark hologram stage, three gap cards,
+   one instrument readout, three ritual steps, a black closing band. */
+:root {
+  --bg: #ffffff;
+  --alt: #f5f5f7;
+  --fg: #1d1d1f;
+  --fg-2: #6e6e73;
+  --line: #d2d2d7;
+  --accent: #0d9488;
+  --accent-soft: #d5f2ee;
+  --nav: rgba(255, 255, 255, .78);
+  --ink: #f5f5f7;       /* text on the always-dark instrument surfaces */
+  --ink-2: #a1a1a6;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang HK", "PingFang TC", "Noto Sans HK", "Microsoft JhengHei", sans-serif;
+  --h: clamp(34px, 8.6vw, 88px);
+  --p: clamp(18px, 2.3vw, 26px);
+
+  /* Motion: four images only (scan, pulse, data, holo). Every duration and easing is named here and used by name. */
+  --scan: #5eead4;                       /* scan light, particles, glow */
+  --trace: #0d9488;                      /* drawn lines on the page surface; lifts to --scan on dark */
+  --glow-lo: rgba(94, 234, 212, .15);
+  --glow-hi: rgba(94, 234, 212, .35);
+  --grid: rgba(94, 234, 212, .06);       /* blueprint lines on the instrument surfaces */
+  --ease: cubic-bezier(.16, 1, .3, 1);   /* ease-out-expo: entrances and state changes */
+  --ease-pulse: ease-in-out;             /* heartbeat and breathing */
+  --ease-scan: linear;                   /* constant-speed sweeps and dash flow */
+  --dur-s: .2s;        /* micro */
+  --dur-m: .45s;       /* state */
+  --dur-l: .7s;        /* entrance */
+  --dur-amb: 6s;       /* ambient loops */
+  --dur-beat: 1.1s;    /* heartbeat */
+  --dur-draw: 2.2s;    /* ECG draws in */
+  --dur-scan: .6s;     /* one sweep across a card */
+  --dur-read: 1.4s;    /* the formula scan bar */
+  --dur-settle: .6s;   /* one readout counts up */
+  --dur-travel: 3s;    /* version dot */
+  --dur-breathe: 4s;   /* the "today" node */
+  --stagger: .1s;      /* reveal stagger, two levels at most */
+  --stagger-holo: .3s; /* headline phrases */
+  --amb-x: 1;          /* ambient slow-down factor */
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #000000; --alt: #161617; --fg: #f5f5f7; --fg-2: #a1a1a6; --line: #424245;
+    --accent: #2dd4bf; --accent-soft: #0f3b37; --nav: rgba(22, 22, 23, .78); --trace: #5eead4; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #000000; --alt: #161617; --fg: #f5f5f7; --fg-2: #a1a1a6; --line: #424245;
+  --accent: #2dd4bf; --accent-soft: #0f3b37; --nav: rgba(22, 22, 23, .78); --trace: #5eead4; color-scheme: dark;
+}
+/* phones and touch: ambient motion runs at half the rate */
+@media (max-width: 640px), (pointer: coarse) { :root { --amb-x: 2; } }
+
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font); -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+a { color: inherit; text-decoration: none; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.wrap {
+  max-width: 1040px; margin-inline: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* nav */
+.nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9; background: var(--nav);
+  -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 50%, transparent); }
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 48px; }
+.brand { font-weight: 700; font-size: 18px; letter-spacing: -.01em; white-space: nowrap; }
+.nav ul { display: flex; gap: clamp(12px, 3vw, 32px); margin: 0; padding: 0; list-style: none; font-size: 13px; color: var(--fg-2); }
+.nav li a { transition: color var(--dur-s) var(--ease); }
+@media (hover: hover) { .nav li a:hover { color: var(--fg); } }
+
+/* bands */
+.band { text-align: center; }
+.band.alt { background: var(--alt); }
+.band .wrap { padding-block: clamp(72px, 12vw, 150px); display: flex; flex-direction: column; align-items: center; gap: clamp(16px, 2.2vw, 26px); }
+.hero .wrap { padding-block: clamp(56px, 9vw, 110px); }
+.eyebrow { margin: 0; font-size: clamp(15px, 1.8vw, 21px); font-weight: 600; color: var(--accent); }
+h1, h2 { margin: 0; font-size: var(--h); line-height: 1.12; font-weight: 700; letter-spacing: -.015em; text-wrap: balance; }
+h1 span, h2 span { display: inline-block; }
+.lede { margin: 0; max-width: 26em; font-size: var(--p); line-height: 1.5; font-weight: 600; color: var(--fg-2); text-wrap: pretty; }
+.note { margin: 0; font-size: 12px; color: var(--fg-2); }
+.block { margin-top: clamp(28px, 5vw, 64px); }
+
+/* hero. holo: the headline forms phrase by phrase and the sachet is a projection. scan: a band of light reads the sachet.
+   pulse: an ECG trace draws in, then one beat runs along it. data: motes rise around it. */
+.hero h1 span { animation: holo var(--dur-l) var(--ease) both; }
+.hero h1 span + span { animation-delay: var(--stagger-holo); }
+@keyframes holo { from { opacity: 0; filter: blur(8px); } }
+.stage { position: relative; width: 100%; max-width: 760px; aspect-ratio: 16 / 10; border-radius: 28px; overflow: hidden; display: grid; place-items: center; margin-top: clamp(12px, 3vw, 32px);
+  background-color: #000000; background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 38px 38px; background-position: center;
+  box-shadow: inset 0 0 0 1px var(--glow-lo); }
+.ecg { display: block; overflow: visible; }
+.stage .ecg { position: absolute; left: 0; top: 50%; width: 100%; height: auto; transform: translateY(-50%); }
+.ecg path { fill: none; stroke: var(--scan); stroke-linecap: round; stroke-linejoin: round; }
+.ecg-base { stroke-width: 2; opacity: .4; stroke-dasharray: 100; animation: ecgDraw var(--dur-draw) var(--ease-scan) both; }
+.ecg-beat { stroke-width: 3; stroke-dasharray: 12 88; opacity: 0; filter: drop-shadow(0 0 3px var(--glow-hi));
+  animation: ecgOn var(--dur-s) var(--ease) var(--dur-draw) forwards, ecgFlow var(--dur-beat) var(--ease-scan) var(--dur-draw) infinite; }
+@keyframes ecgDraw { from { stroke-dashoffset: 100; } }
+@keyframes ecgOn { to { opacity: 1; } }
+@keyframes ecgFlow { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+.float { position: relative; z-index: 1; height: 64%; aspect-ratio: 5 / 7; animation: bob var(--dur-amb) var(--ease-pulse) infinite; }
+@keyframes bob { 0%, 100% { transform: translateY(-1.5%); } 50% { transform: translateY(1.5%); } }
+.sachet { position: relative; width: 100%; height: 100%; container-type: size; transform: rotate(-5deg); border-radius: 7% / 5%; overflow: hidden; display: flex; flex-direction: column; color: var(--ink);
+  background: linear-gradient(155deg, color-mix(in srgb, var(--scan) 30%, transparent), color-mix(in srgb, var(--scan) 6%, transparent) 46%, color-mix(in srgb, var(--scan) 22%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--scan) 60%, transparent), inset 0 0 34px var(--glow-lo), 0 0 44px var(--glow-lo); }
+.seal { flex: none; height: 9%; background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--scan) 55%, transparent) 0 1px, transparent 1px 6px); border-bottom: 1px dashed color-mix(in srgb, var(--scan) 60%, transparent); }
+.seal.bottom { border-bottom: 0; border-top: 1px solid color-mix(in srgb, var(--scan) 40%, transparent); }
+.label { flex: 1; display: grid; place-content: center; gap: 10px; gap: 3cqh; text-align: center; }
+.label b { font-size: 30px; font-size: 13cqh; font-weight: 700; letter-spacing: .12em; margin-right: -.12em; }
+.label span { font-size: 15px; font-size: 6.5cqh; font-weight: 600; letter-spacing: .22em; margin-right: -.22em; color: var(--scan); }
+.scanband { position: absolute; inset: 0; background: linear-gradient(transparent 38%, color-mix(in srgb, var(--scan) 55%, transparent) 50%, transparent 62%); transform: translateY(-100%); animation: scanY var(--dur-amb) var(--ease-scan) infinite; }
+@keyframes scanY { 0% { transform: translateY(-100%); } 60%, 100% { transform: translateY(100%); } }
+.pad { position: absolute; left: 50%; bottom: 6%; width: 44%; height: 8%; transform: translateX(-50%); background: radial-gradient(closest-side, var(--glow-hi), transparent); animation: breathe var(--dur-beat) var(--ease-pulse) infinite; }
+@keyframes breathe { 0%, 100% { opacity: .6; } 50% { opacity: 1; } }
+.mote { position: absolute; left: var(--x); top: var(--y); width: 3px; height: 3px; border-radius: 50%; background: var(--scan); opacity: .5;
+  animation: mote calc(var(--dur-amb) * var(--k) * var(--amb-x)) var(--ease-scan) infinite; animation-delay: calc(var(--dur-amb) * var(--o) * -1); }
+@keyframes mote { 0% { opacity: 0; transform: translateY(24px); } 25% { opacity: .9; } 100% { opacity: 0; transform: translateY(-64px); } }
+@media (max-width: 640px) { .stage { aspect-ratio: 1; } }
+@media (max-width: 640px), (pointer: coarse) { .mote.x2 { display: none; } }
+
+/* buttons */
+.btn { font: inherit; font-size: 15px; font-weight: 600; padding: 11px 22px; border-radius: 999px; border: 0; background: var(--scan); color: #000000; cursor: pointer;
+  transition: transform var(--dur-s) var(--ease), opacity var(--dur-s) var(--ease); }
+.btn:disabled { opacity: .45; cursor: default; }
+@media (hover: hover) { .btn:not(:disabled):hover { transform: translateY(-2px); } }
+.btn:not(:disabled):active { transform: scale(.97); }
+.btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+/* the gap: three cards; one band of light crosses a card, its rim holds a teal glow for a moment, then lets go */
+.gaps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; margin: 0; padding: 0; list-style: none; }
+.gaps li { position: relative; overflow: hidden; background: var(--bg); border-radius: 22px; padding: 30px 22px 28px; display: flex; flex-direction: column; align-items: center; gap: 12px; min-width: 0; }
+.gaps svg { width: 44px; height: 44px; stroke: var(--accent); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.gaps h3 { margin: 4px 0 0; font-size: clamp(22px, 2.6vw, 28px); font-weight: 700; }
+.gaps p { margin: 0; font-size: 16px; line-height: 1.5; color: var(--fg-2); text-wrap: pretty; }
+.gaps li::before, .gaps li::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
+.gaps li::before { border-radius: inherit; box-shadow: inset 0 0 0 1px var(--glow-hi), inset 0 0 18px var(--glow-lo); opacity: 0; }
+.gaps li::after { background: linear-gradient(100deg, transparent 30%, var(--glow-hi) 50%, transparent 70%); transform: translateX(-100%); }
+.gaps li.scan::after { animation: sweep var(--dur-scan) var(--ease-scan) both; }
+.gaps li.scan::before { animation: rim calc(var(--dur-scan) + var(--dur-m)) var(--ease) both; }
+@keyframes sweep { to { transform: translateX(100%); } }
+@keyframes rim { 57% { opacity: 1; } }
+@media (max-width: 640px) { .gaps { grid-template-columns: 1fr; } }
+
+/* formula readout: an always-dark instrument. Scan bar fills, a line crosses the tiles, then each value lights up and counts. */
+.readout { position: relative; box-sizing: border-box; width: 100%; max-width: 760px; border-radius: 28px; overflow: hidden; padding: clamp(20px, 4vw, 36px); display: flex; flex-direction: column; gap: clamp(18px, 3vw, 26px); color: var(--ink); text-align: left;
+  background-color: #000000; background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 38px 38px; background-position: center;
+  box-shadow: inset 0 0 0 1px var(--glow-lo); }
+.scanbar { height: 4px; border-radius: 2px; overflow: hidden; background: color-mix(in srgb, var(--ink) 14%, transparent); }
+.scanbar i { display: block; height: 100%; background: var(--scan); transform-origin: left; }
+.standby .scanbar i { transform: scaleX(0); }
+.scanning .scanbar i { animation: fill var(--dur-read) var(--ease-scan) both; }
+@keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.reads { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.reads li { position: relative; border-radius: 18px; padding: clamp(18px, 3vw, 28px) 6px clamp(14px, 2.4vw, 22px); display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; text-align: center;
+  background: color-mix(in srgb, var(--scan) 5%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--scan) 22%, transparent); }
+.reads b { display: flex; align-items: baseline; gap: 3px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+.reads .num { font-size: clamp(36px, 9vw, 76px); letter-spacing: -.02em; }
+.reads b i { font-style: normal; font-size: clamp(14px, 2.4vw, 22px); color: var(--scan); }
+.reads li > span:last-child { font-size: clamp(13px, 1.8vw, 16px); font-weight: 600; color: var(--ink-2); }
+.reads li.off { opacity: .38; }
+.reads li.lit { animation: light var(--dur-m) var(--ease) both; }
+@keyframes light { from { opacity: .38; filter: blur(6px); } }
+.reads li::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; box-shadow: inset 0 0 0 1px var(--glow-hi), inset 0 0 22px var(--glow-hi); opacity: 0; }
+.reads li.lit::after { animation: afterglow var(--dur-draw) var(--ease) both; }
+@keyframes afterglow { from { opacity: 1; } }
+.reads::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, transparent 46%, color-mix(in srgb, var(--scan) 70%, transparent) 50%, transparent 54%); transform: translateX(-100%); }
+.scanning .reads::after { animation: sweep var(--dur-read) var(--ease-scan) both; }
+.readout-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.status { font-size: 13px; font-weight: 600; color: var(--ink-2); letter-spacing: .04em; }
+
+/* the ritual: three steps, each under a teal line that draws in */
+.ritual { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(16px, 3vw, 40px); width: 100%; margin: 0; padding: 0; list-style: none; text-align: left; }
+.ritual li { position: relative; padding-top: 22px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.ritual li::before { content: ""; position: absolute; inset: 0 0 auto; height: 2px; background: var(--trace); transform-origin: left; }
+.ritual.in li::before { animation: grow var(--dur-l) var(--ease) both; animation-delay: calc(var(--stagger) * 2 * var(--n, 0)); }
+.ritual li:nth-child(2) { --n: 1; } .ritual li:nth-child(3) { --n: 2; }
+@keyframes grow { from { transform: scaleX(0); } }
+.ritual small { font-size: 14px; font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
+.ritual svg { width: 44px; height: 44px; stroke: var(--accent); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.ritual h3 { margin: 0; font-size: clamp(28px, 4.4vw, 44px); font-weight: 700; letter-spacing: -.01em; }
+.ritual p { margin: 0; font-size: 16px; line-height: 1.5; color: var(--fg-2); }
+@media (max-width: 640px) { .ritual { grid-template-columns: 1fr; gap: 34px; } }
+
+/* evolution: the always-black close. A point of light runs the version line once; "today" breathes. */
+.finale { color: var(--ink);
+  background-color: #000000; background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 38px 38px; background-position: center; }
+.finale .eyebrow { color: var(--scan); }
+.finale .lede { color: var(--ink-2); }
+.chain { display: flex; align-items: center; gap: 14px; width: min(100%, 620px); }
+.node { flex: none; font-size: 15px; font-weight: 600; padding: 8px 16px; border-radius: 999px; color: var(--ink-2); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 30%, transparent); font-variant-numeric: tabular-nums; }
+.node.now { position: relative; color: #000000; background: var(--scan); box-shadow: none; }
+.node.now::after { content: ""; position: absolute; inset: -5px; border-radius: inherit; pointer-events: none; box-shadow: 0 0 0 1px var(--glow-hi), 0 0 18px var(--glow-hi); animation: breathe calc(var(--dur-breathe) * var(--amb-x)) var(--ease-pulse) infinite; }
+.track { position: relative; flex: 1; height: 9px; container-type: inline-size;
+  background: radial-gradient(circle, color-mix(in srgb, var(--ink) 45%, transparent) 0 2px, transparent 2.5px) 33% 50% / 9px 9px no-repeat, radial-gradient(circle, color-mix(in srgb, var(--ink) 45%, transparent) 0 2px, transparent 2.5px) 66% 50% / 9px 9px no-repeat,
+    linear-gradient(color-mix(in srgb, var(--ink) 35%, transparent), color-mix(in srgb, var(--ink) 35%, transparent)) 50% 50% / 100% 1px no-repeat; }
+.track::after { content: ""; position: absolute; right: 0; top: 50%; width: 7px; height: 7px; border-top: 1.5px solid color-mix(in srgb, var(--ink) 55%, transparent); border-right: 1.5px solid color-mix(in srgb, var(--ink) 55%, transparent); transform: translateY(-50%) rotate(45deg); }
+.track i { position: absolute; left: 0; top: 0; width: 9px; height: 9px; border-radius: 50%; background: var(--scan); box-shadow: 0 0 0 3px var(--glow-lo), 0 0 10px var(--glow-hi); transform: translateX(calc(100cqw - 9px)); }
+.chain.in .track i { animation: travel var(--dur-travel) var(--ease-scan) both; }
+@keyframes travel { from { transform: translateX(0); } }
+
+footer .wrap { padding-block: 28px; display: grid; gap: 8px; font-size: 12px; color: var(--fg-2); text-align: center; }
+
+/* entrance (holo): once the observer is live it parks blocks still below the viewport; each then forms out of blur, once */
+.rv-wait { opacity: 0; filter: blur(10px); transform: translateY(8px); }
+.rv-in { transition: opacity var(--dur-l) var(--ease), filter var(--dur-l) var(--ease), transform var(--dur-l) var(--ease); }
+.rv-in.d1 { transition-delay: var(--stagger); }
+.rv-in.d2 { transition-delay: calc(var(--stagger) * 2); }
+/* reduced motion: nothing moves, and every base style above is already the finished state */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+
+<nav class="nav" aria-label="章節">
+  <div class="wrap">
+    <a class="brand" href="#top">Zuply GLP-1</a>
+    <ul>
+      <li><a href="#gap">Gap</a></li>
+      <li><a href="#readout-band">讀數</a></li>
+      <li><a href="#ritual">Ritual</a></li>
+      <li><a href="#evolution">Evolution</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="band hero" id="top">
+  <div class="wrap">
+    <p class="eyebrow">Zuply GLP-1</p>
+    <h1><span>食得少，</span><span>都要食得夠。</span></h1>
+    <p class="lede">25g 蛋白、9 種胺基酸、12 項微量營養，一包齊。</p>
+    <div class="stage" role="img" aria-label="Zuply GLP-1 配方包嘅全息影像，後面有一條心電圖線">
+      <svg class="ecg" viewBox="0 0 600 48" aria-hidden="true" focusable="false"><path class="ecg-base" pathLength="100" d="M0 30H116q6-7 12 0H140l4 5 6-30 6 37 5-12H172q9-10 18 0H266q6-7 12 0H290l4 5 6-30 6 37 5-12H322q9-10 18 0H416q6-7 12 0H440l4 5 6-30 6 37 5-12H472q9-10 18 0H600"/><path class="ecg-beat" pathLength="100" d="M0 30H116q6-7 12 0H140l4 5 6-30 6 37 5-12H172q9-10 18 0H266q6-7 12 0H290l4 5 6-30 6 37 5-12H322q9-10 18 0H416q6-7 12 0H440l4 5 6-30 6 37 5-12H472q9-10 18 0H600"/></svg>
+      <i class="mote" style="--x:14%;--y:62%;--k:1.1;--o:.1"></i><i class="mote x2" style="--x:21%;--y:34%;--k:1.5;--o:.55"></i>
+      <i class="mote" style="--x:27%;--y:78%;--k:1.3;--o:.8"></i><i class="mote x2" style="--x:31%;--y:48%;--k:1;--o:.3"></i>
+      <i class="mote" style="--x:35%;--y:24%;--k:1.6;--o:.65"></i><i class="mote x2" style="--x:9%;--y:40%;--k:1.4;--o:.9"></i>
+      <i class="mote" style="--x:66%;--y:70%;--k:1.2;--o:.45"></i><i class="mote x2" style="--x:71%;--y:30%;--k:1.5;--o:.15"></i>
+      <i class="mote" style="--x:77%;--y:54%;--k:1;--o:.7"></i><i class="mote x2" style="--x:83%;--y:76%;--k:1.3;--o:.25"></i>
+      <i class="mote" style="--x:88%;--y:38%;--k:1.6;--o:.5"></i><i class="mote x2" style="--x:63%;--y:20%;--k:1.1;--o:.95"></i>
+      <div class="float">
+        <div class="sachet">
+          <i class="seal"></i>
+          <div class="label"><b>ZUPLY</b><span>GLP-1</span></div>
+          <i class="seal bottom"></i>
+          <i class="scanband"></i>
+        </div>
+      </div>
+      <i class="pad"></i>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="band alt" id="gap">
+    <div class="wrap">
+      <p class="eyebrow">The Gap</p>
+      <h2><span>食少咗，</span><span>缺口就出現。</span></h2>
+      <p class="lede">GLP-1 令你食得少。少咗嘅唔止卡路里，仲有身體日日要用嘅營養。</p>
+      <ul class="gaps block">
+        <li>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="9" cy="30" r="5"/><circle cx="20" cy="16" r="5"/><circle cx="32" cy="28" r="5"/><circle cx="37" cy="11" r="3.5"/><path d="M12 26l5-6M24 19l5 5M34.4 23.6l1.6-9.2"/></svg>
+          <h3>蛋白質</h3>
+          <p>食量細咗，蛋白質最容易食唔夠。</p>
+        </li>
+        <li>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M6 16v12M11 12v20M33 12v20M38 16v12M11 22h22"/></svg>
+          <h3>肌肉</h3>
+          <p>體重跌嘅時候，肌肉可能跟住一齊跌。</p>
+        </li>
+        <li>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="8" y="15" width="28" height="14" rx="7"/><path d="M22 15v14"/><circle cx="10" cy="8" r="1.6"/><circle cx="36" cy="8" r="1.6"/><circle cx="34" cy="36" r="1.6"/><circle cx="12" cy="36" r="1.6"/></svg>
+          <h3>微量營養</h3>
+          <p>食物少咗，維他命同礦物質都跟住少。</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band" id="readout-band">
+    <div class="wrap">
+      <p class="eyebrow">配方讀數</p>
+      <h2><span>一包入面，</span><span>有乜。</span></h2>
+      <p class="lede">撳一下，睇返呢包嘢補緊邊三樣。</p>
+      <div class="readout block" id="readout">
+        <div class="scanbar" aria-hidden="true"><i></i></div>
+        <ul class="reads">
+          <li data-to="25"><span class="sr">25 克蛋白質</span><b aria-hidden="true"><span class="num">25</span><i>g</i></b><span aria-hidden="true">蛋白質</span></li>
+          <li data-to="9"><span class="sr">9 種胺基酸</span><b aria-hidden="true"><span class="num">9</span><i>種</i></b><span aria-hidden="true">胺基酸</span></li>
+          <li data-to="12"><span class="sr">12 項微量營養</span><b aria-hidden="true"><span class="num">12</span><i>項</i></b><span aria-hidden="true">微量營養</span></li>
+        </ul>
+        <div class="readout-foot">
+          <span class="status" id="readout-status" aria-live="polite">每包讀數</span>
+          <button class="btn" id="scan-btn" type="button">掃描配方</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band alt" id="ritual">
+    <div class="wrap">
+      <p class="eyebrow">The Ritual</p>
+      <h2><span>撕開，</span><span>搖勻，</span><span>飲得。</span></h2>
+      <p class="lede">三步，唔使諗。</p>
+      <ol class="ritual block">
+        <li>
+          <small>01</small>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M12 14h20v24H12z"/><path d="M12 20h20" stroke-dasharray="2 3"/><path d="M27 7l8 3"/></svg>
+          <h3>撕開</h3>
+          <p>一包，就係一次嘅份量。</p>
+        </li>
+        <li>
+          <small>02</small>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M16 14h12v22a3 3 0 0 1-3 3h-6a3 3 0 0 1-3-3z"/><path d="M18 9h8v5h-8z"/><path d="M8 20c-2 4-2 8 0 12M36 20c2 4 2 8 0 12"/></svg>
+          <h3>搖勻</h3>
+          <p>加水，搖幾下。</p>
+        </li>
+        <li>
+          <small>03</small>
+          <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M13 9h18l-2.5 27a3 3 0 0 1-3 2.6h-7a3 3 0 0 1-3-2.6z"/><path d="M14.5 19h15"/></svg>
+          <h3>飲得</h3>
+          <p>唔使煮，唔使計。</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band finale" id="evolution">
+    <div class="wrap">
+      <p class="eyebrow">Evolution</p>
+      <h2><span>你變，</span><span>配方跟住變。</span></h2>
+      <p class="lede">身體唔會停喺原地，配方都唔會。</p>
+      <div class="chain block" role="img" aria-label="配方由 v.01 一路演變到今日">
+        <span class="node">v.01</span>
+        <span class="track"><i></i></span>
+        <span class="node now">今日</span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>營養補充品，唔係藥物，唔可以取代 GLP-1 藥物或者醫生嘅建議。</span><span>Zuply · 配方跟人走</span></div></footer>
+
+<script>
+(function () {
+  var quick = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Timings for the scripts, read once from the CSS tokens
+  var rootCss = getComputedStyle(document.documentElement);
+  function ms(name, fallback) { return (parseFloat(rootCss.getPropertyValue(name)) || fallback) * 1000; }
+  var READ = ms('--dur-read', 1.4), SETTLE = ms('--dur-settle', .6), STATE = ms('--dur-m', .45), ENTRANCE = ms('--dur-l', .7), STAGGER = ms('--stagger', .1);
+
+  // Formula readout: press the button, the bar scans, then the three values light up and count, one after another.
+  // The markup already holds the finished readout; standby is only applied here, once the button can work.
+  var ro = document.getElementById('readout'), btn = document.getElementById('scan-btn'), status = document.getElementById('readout-status');
+  var tiles = Array.prototype.slice.call(ro.querySelectorAll('.reads li')), run = 0, timers = [];
+  function later(fn, wait) { timers.push(setTimeout(fn, quick ? 0 : wait)); }
+  function standby() {
+    timers.forEach(clearTimeout); timers.length = 0; run++;
+    tiles.forEach(function (li) { li.classList.remove('lit'); li.classList.add('off'); li.querySelector('.num').textContent = '0'; });
+    ro.classList.remove('scanning'); ro.classList.add('standby');
+  }
+  function count(node, to, id) {   // frame-driven, and it stops with the scan it belongs to
+    if (quick) { node.textContent = to; return; }
+    var t0 = performance.now();
+    (function step() {
+      if (id !== run) return;
+      var f = Math.min(1, (performance.now() - t0) / SETTLE); node.textContent = Math.round(to * f);
+      if (f < 1) requestAnimationFrame(step);
+    })();
+  }
+  function scan() {
+    standby(); var id = run;
+    ro.classList.add('scanning'); btn.disabled = true; status.textContent = '掃描緊…';
+    later(function () {
+      if (id !== run) return;
+      ro.classList.remove('scanning', 'standby');
+      tiles.forEach(function (li, k) {
+        later(function () { if (id !== run) return; li.classList.remove('off'); li.classList.add('lit'); count(li.querySelector('.num'), +li.dataset.to, id); }, k * STATE);
+      });
+      later(function () { if (id !== run) return; status.textContent = '讀數完成'; btn.disabled = false; btn.textContent = '再掃一次'; }, (tiles.length - 1) * STATE + SETTLE);
+    }, READ);
+  }
+  standby(); status.textContent = '待掃描'; btn.addEventListener('click', scan);
+
+  // Gap cards: one scan sweep on mouse hover or on touch tap, and once in turn as the row forms (so touch sees it without a tap)
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.gaps li'));
+  cards.forEach(function (li) {
+    li.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse' && !quick) li.classList.add('scan'); });
+    li.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse' && !quick) li.classList.add('scan'); });
+    li.addEventListener('animationend', function (e) { if (e.animationName === 'rim') li.classList.remove('scan'); });
+  });
+  function shown(t) {
+    t.classList.add('in');
+    if (t.classList.contains('gaps') && !quick) cards.forEach(function (li, k) { setTimeout(function () { li.classList.add('scan'); }, ENTRANCE + k * STAGGER * 3); });
+  }
+
+  // Scroll reveal. Nothing is hidden by CSS alone: the observer's first report parks only what is still below the
+  // viewport, so content stays visible if the observer never runs. Each block reveals once, then is unobserved.
+  if (!('IntersectionObserver' in window) || quick) return;
+  var seen = new WeakSet();
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      var t = e.target, vh = e.rootBounds ? e.rootBounds.height : window.innerHeight;
+      if (!seen.has(t)) {
+        seen.add(t);
+        if (!e.isIntersecting && e.boundingClientRect.top >= vh - 1) { t.classList.add('rv-wait'); return; }
+        shown(t); io.unobserve(t); return;
+      }
+      // a quarter of the block in view, or for blocks taller than the screen, 40% of the screen filled
+      if (e.isIntersecting && (e.intersectionRatio >= .249 || e.intersectionRect.height >= vh * .4)) {
+        t.classList.add('rv-in'); t.classList.remove('rv-wait'); shown(t); io.unobserve(t);
+        t.addEventListener('transitionend', function done(ev) { if (ev.target === t) { t.classList.remove('rv-in'); t.removeEventListener('transitionend', done); } });
+      }
+    });
+  }, { threshold: [0, .05, .1, .15, .2, .25] });
+  document.querySelectorAll('main .band > .wrap > *').forEach(function (n) {
+    var k = Array.prototype.indexOf.call(n.parentNode.children, n);
+    if (k === 1 || k === 2) n.classList.add(k === 1 ? 'd1' : 'd2');
+    io.observe(n);
+  });
+})();
+</script>
