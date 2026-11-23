@@ -88,7 +88,17 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-
 h1, h2 { margin: 0; font-size: var(--h); line-height: 1.12; font-weight: 700; letter-spacing: -.015em; text-wrap: balance; }
 h1 span, h2 span { display: inline-block; }
 .lede { margin: 0; max-width: 26em; font-size: var(--p); line-height: 1.5; font-weight: 600; color: var(--fg-2); text-wrap: pretty; }
+.lede strong { color: var(--fg); font-weight: 600; display: inline-block; }
 .note { margin: 0; font-size: 12px; color: var(--fg-2); }
+.punch { margin: clamp(8px, 2vw, 20px) 0 0; font-size: clamp(22px, 3.4vw, 36px); font-weight: 700; line-height: 1.3; color: var(--fg-2); text-wrap: balance; }
+.punch span { display: inline-block; }
+.punch strong { color: var(--fg); font-weight: 700; display: inline-block; }
+.specs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.specs li { font-size: 14px; font-weight: 600; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.specs b { color: var(--accent); font-weight: 700; margin-right: 5px; }
+.more { font-size: clamp(16px, 2vw, 20px); font-weight: 600; color: var(--accent); text-underline-offset: 4px; }
+.more::after { content: " ›"; }
+@media (hover: hover) { .more:hover { text-decoration: underline; } }
 .block { margin-top: clamp(28px, 5vw, 64px); }
 
 /* hero. holo: the headline forms phrase by phrase and the sachet is a projection. scan: a band of light reads the sachet.
@@ -141,7 +151,8 @@ h1 span, h2 span { display: inline-block; }
 .gaps li { position: relative; overflow: hidden; background: var(--bg); border-radius: 22px; padding: 30px 22px 28px; display: flex; flex-direction: column; align-items: center; gap: 12px; min-width: 0; }
 .gaps svg { width: 44px; height: 44px; stroke: var(--accent); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .gaps h3 { margin: 4px 0 0; font-size: clamp(22px, 2.6vw, 28px); font-weight: 700; }
-.gaps p { margin: 0; font-size: 16px; line-height: 1.5; color: var(--fg-2); text-wrap: pretty; }
+.gaps strong { font-size: 18px; font-weight: 700; line-height: 1.4; text-wrap: balance; }
+.gaps p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--fg-2); text-wrap: pretty; }
 .gaps li::before, .gaps li::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
 .gaps li::before { border-radius: inherit; box-shadow: inset 0 0 0 1px var(--glow-hi), inset 0 0 18px var(--glow-lo); opacity: 0; }
 .gaps li::after { background: linear-gradient(100deg, transparent 30%, var(--glow-hi) 50%, transparent 70%); transform: translateX(-100%); }
@@ -166,7 +177,8 @@ h1 span, h2 span { display: inline-block; }
 .reads b { display: flex; align-items: baseline; gap: 3px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
 .reads .num { font-size: clamp(36px, 9vw, 76px); letter-spacing: -.02em; }
 .reads b i { font-style: normal; font-size: clamp(14px, 2.4vw, 22px); color: var(--scan); }
-.reads li > span:last-child { font-size: clamp(13px, 1.8vw, 16px); font-weight: 600; color: var(--ink-2); }
+.reads .name { font-size: clamp(13px, 1.8vw, 16px); font-weight: 600; color: var(--ink-2); }
+.reads small { font-size: clamp(11px, 1.5vw, 13px); font-weight: 600; color: var(--scan); }
 .reads li.off { opacity: .38; }
 .reads li.lit { animation: light var(--dur-m) var(--ease) both; }
 @keyframes light { from { opacity: .38; filter: blur(6px); } }
@@ -196,6 +208,10 @@ h1 span, h2 span { display: inline-block; }
   background-color: #000000; background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 38px 38px; background-position: center; }
 .finale .eyebrow { color: var(--scan); }
 .finale .lede { color: var(--ink-2); }
+.finale .lede strong { color: var(--ink); }
+.close { margin: clamp(40px, 8vw, 100px) 0 0; font-size: clamp(32px, 7vw, 72px); font-weight: 700; line-height: 1.14; letter-spacing: -.015em; text-wrap: balance; }
+.close span { display: inline-block; }
+.close-sub { margin: 0; font-size: var(--p); font-weight: 600; color: var(--ink-2); }
 .chain { display: flex; align-items: center; gap: 14px; width: min(100%, 620px); }
 .node { flex: none; font-size: 15px; font-weight: 600; padding: 8px 16px; border-radius: 999px; color: var(--ink-2); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 30%, transparent); font-variant-numeric: tabular-nums; }
 .node.now { position: relative; color: #000000; background: var(--scan); box-shadow: none; }
@@ -238,7 +254,13 @@ footer .wrap { padding-block: 28px; display: grid; gap: 8px; font-size: 12px; co
   <div class="wrap">
     <p class="eyebrow">Zuply GLP-1</p>
     <h1><span>食得少，</span><span>都要食得夠。</span></h1>
-    <p class="lede">25g 蛋白、9 種胺基酸、12 項微量營養，一包齊。</p>
+    <p class="lede">胃口細咗，但身體要嘅蛋白質冇跟住細。<strong>食唔落嗰份，可以飲。</strong></p>
+    <ul class="specs">
+      <li><b>25g</b>蛋白</li>
+      <li><b>9 種</b>胺基酸</li>
+      <li><b>12 項</b>微量營養</li>
+    </ul>
+    <a class="more" href="#readout-band">睇下一包入面有乜</a>
     <div class="stage" role="img" aria-label="Zuply GLP-1 配方包嘅全息影像，後面有一條心電圖線">
       <svg class="ecg" viewBox="0 0 600 48" aria-hidden="true" focusable="false"><path class="ecg-base" pathLength="100" d="M0 30H116q6-7 12 0H140l4 5 6-30 6 37 5-12H172q9-10 18 0H266q6-7 12 0H290l4 5 6-30 6 37 5-12H322q9-10 18 0H416q6-7 12 0H440l4 5 6-30 6 37 5-12H472q9-10 18 0H600"/><path class="ecg-beat" pathLength="100" d="M0 30H116q6-7 12 0H140l4 5 6-30 6 37 5-12H172q9-10 18 0H266q6-7 12 0H290l4 5 6-30 6 37 5-12H322q9-10 18 0H416q6-7 12 0H440l4 5 6-30 6 37 5-12H472q9-10 18 0H600"/></svg>
       <i class="mote" style="--x:14%;--y:62%;--k:1.1;--o:.1"></i><i class="mote x2" style="--x:21%;--y:34%;--k:1.5;--o:.55"></i>
@@ -264,39 +286,43 @@ footer .wrap { padding-block: 28px; display: grid; gap: 8px; font-size: 12px; co
   <section class="band alt" id="gap">
     <div class="wrap">
       <p class="eyebrow">The Gap</p>
-      <h2><span>食少咗，</span><span>缺口就出現。</span></h2>
-      <p class="lede">GLP-1 令你食得少。少咗嘅唔止卡路里，仲有身體日日要用嘅營養。</p>
+      <h2><span>磅數跌緊，</span><span>跌嘅係乜？</span></h2>
+      <p class="lede">食少咗，身體唔夠原料，就會攞自己嚟用。<strong>攞嘅唔止脂肪。</strong></p>
       <ul class="gaps block">
         <li>
           <svg viewBox="0 0 44 44" aria-hidden="true"><circle cx="9" cy="30" r="5"/><circle cx="20" cy="16" r="5"/><circle cx="32" cy="28" r="5"/><circle cx="37" cy="11" r="3.5"/><path d="M12 26l5-6M24 19l5 5M34.4 23.6l1.6-9.2"/></svg>
           <h3>蛋白質</h3>
-          <p>食量細咗，蛋白質最容易食唔夠。</p>
+          <strong>最先唔夠嘅，就係佢。</strong>
+          <p>三餐變兩餐，每餐再食少啲，蛋白質即刻唔夠數。</p>
         </li>
         <li>
           <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M6 16v12M11 12v20M33 12v20M38 16v12M11 22h22"/></svg>
           <h3>肌肉</h3>
-          <p>體重跌嘅時候，肌肉可能跟住一齊跌。</p>
+          <strong>唔夠蛋白質，身體會拆肌肉嚟用。</strong>
+          <p>瘦咗，但未必係你想要嗰種瘦。</p>
         </li>
         <li>
           <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="8" y="15" width="28" height="14" rx="7"/><path d="M22 15v14"/><circle cx="10" cy="8" r="1.6"/><circle cx="36" cy="8" r="1.6"/><circle cx="34" cy="36" r="1.6"/><circle cx="12" cy="36" r="1.6"/></svg>
           <h3>微量營養</h3>
-          <p>食物少咗，維他命同礦物質都跟住少。</p>
+          <strong>靜靜雞跟住少。</strong>
+          <p>食物少咗，維他命同礦物質都少咗。你未必即刻覺，但身體知。</p>
         </li>
       </ul>
+      <p class="punch"><span>所以食得少嘅時候，</span><strong>每一啖都要更值。</strong></p>
     </div>
   </section>
 
   <section class="band" id="readout-band">
     <div class="wrap">
       <p class="eyebrow">配方讀數</p>
-      <h2><span>一包入面，</span><span>有乜。</span></h2>
-      <p class="lede">撳一下，睇返呢包嘢補緊邊三樣。</p>
+      <h2><span>三個缺口，</span><span>一包應付。</span></h2>
+      <p class="lede">唔使信我哋講。<strong>自己掃。</strong></p>
       <div class="readout block" id="readout">
         <div class="scanbar" aria-hidden="true"><i></i></div>
         <ul class="reads">
-          <li data-to="25"><span class="sr">25 克蛋白質</span><b aria-hidden="true"><span class="num">25</span><i>g</i></b><span aria-hidden="true">蛋白質</span></li>
-          <li data-to="9"><span class="sr">9 種胺基酸</span><b aria-hidden="true"><span class="num">9</span><i>種</i></b><span aria-hidden="true">胺基酸</span></li>
-          <li data-to="12"><span class="sr">12 項微量營養</span><b aria-hidden="true"><span class="num">12</span><i>項</i></b><span aria-hidden="true">微量營養</span></li>
+          <li data-to="25"><span class="sr">25 克蛋白質，約等於 4 隻雞蛋</span><b aria-hidden="true"><span class="num">25</span><i>g</i></b><span class="name" aria-hidden="true">蛋白質</span><small aria-hidden="true">約等於 4 隻雞蛋</small></li>
+          <li data-to="9"><span class="sr">9 種胺基酸，肌肉嘅原料</span><b aria-hidden="true"><span class="num">9</span><i>種</i></b><span class="name" aria-hidden="true">胺基酸</span><small aria-hidden="true">肌肉嘅原料</small></li>
+          <li data-to="12"><span class="sr">12 項微量營養，維他命同礦物質</span><b aria-hidden="true"><span class="num">12</span><i>項</i></b><span class="name" aria-hidden="true">微量營養</span><small aria-hidden="true">維他命同礦物質</small></li>
         </ul>
         <div class="readout-foot">
           <span class="status" id="readout-status" aria-live="polite">每包讀數</span>
@@ -310,13 +336,13 @@ footer .wrap { padding-block: 28px; display: grid; gap: 8px; font-size: 12px; co
     <div class="wrap">
       <p class="eyebrow">The Ritual</p>
       <h2><span>撕開，</span><span>搖勻，</span><span>飲得。</span></h2>
-      <p class="lede">三步，唔使諗。</p>
+      <p class="lede">食唔落？唔使食。<strong>飲就得。</strong></p>
       <ol class="ritual block">
         <li>
           <small>01</small>
           <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M12 14h20v24H12z"/><path d="M12 20h20" stroke-dasharray="2 3"/><path d="M27 7l8 3"/></svg>
           <h3>撕開</h3>
-          <p>一包，就係一次嘅份量。</p>
+          <p>一包就係一次。唔使量，唔使計。</p>
         </li>
         <li>
           <small>02</small>
@@ -328,7 +354,7 @@ footer .wrap { padding-block: 28px; display: grid; gap: 8px; font-size: 12px; co
           <small>03</small>
           <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M13 9h18l-2.5 27a3 3 0 0 1-3 2.6h-7a3 3 0 0 1-3-2.6z"/><path d="M14.5 19h15"/></svg>
           <h3>飲得</h3>
-          <p>唔使煮，唔使計。</p>
+          <p>食唔落嘅日子，飲比食易。</p>
         </li>
       </ol>
     </div>
@@ -338,12 +364,14 @@ footer .wrap { padding-block: 28px; display: grid; gap: 8px; font-size: 12px; co
     <div class="wrap">
       <p class="eyebrow">Evolution</p>
       <h2><span>你變，</span><span>配方跟住變。</span></h2>
-      <p class="lede">身體唔會停喺原地，配方都唔會。</p>
+      <p class="lede">體重會變，胃口會變，目標都會變。<strong>配方唔會停喺 v.01。</strong></p>
       <div class="chain block" role="img" aria-label="配方由 v.01 一路演變到今日">
         <span class="node">v.01</span>
         <span class="track"><i></i></span>
         <span class="node now">今日</span>
       </div>
+      <p class="close"><span>減嘅係磅數，</span><span>唔係你。</span></p>
+      <p class="close-sub">由今日嗰包開始。</p>
     </div>
   </section>
 </main>
@@ -386,10 +414,10 @@ footer .wrap { padding-block: 28px; display: grid; gap: 8px; font-size: 12px; co
       tiles.forEach(function (li, k) {
         later(function () { if (id !== run) return; li.classList.remove('off'); li.classList.add('lit'); count(li.querySelector('.num'), +li.dataset.to, id); }, k * STATE);
       });
-      later(function () { if (id !== run) return; status.textContent = '讀數完成'; btn.disabled = false; btn.textContent = '再掃一次'; }, (tiles.length - 1) * STATE + SETTLE);
+      later(function () { if (id !== run) return; status.textContent = '讀數完成。一包，三樣都有。'; btn.disabled = false; btn.textContent = '再掃一次'; }, (tiles.length - 1) * STATE + SETTLE);
     }, READ);
   }
-  standby(); status.textContent = '待掃描'; btn.addEventListener('click', scan);
+  standby(); status.textContent = '撳掣，睇下入面有乜'; btn.addEventListener('click', scan);
 
   // Gap cards: one scan sweep on mouse hover or on touch tap, and once in turn as the row forms (so touch sees it without a tap)
   var cards = Array.prototype.slice.call(document.querySelectorAll('.gaps li'));
